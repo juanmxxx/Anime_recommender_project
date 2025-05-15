@@ -1,0 +1,246 @@
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
+
+// Fondo decorativo estático con chicas anime (usando imágenes locales)
+const backgroundGirls = [
+  '/images/E2d2giGWQAMr6dx.jpg',
+  '/images/Episodio_10_-_33.webp',
+  '/images/Zerotwomain.webp',
+];
+const centralImage = '/images/Mayoi_Owari3.webp';
+
+function App() {
+  const [prompt, setPrompt] = useState("");
+  const [top, setTop] = useState("top 5");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedAnime, setSelectedAnime] = useState(null);
+  const [animes, setAnimes] = useState([]);
+
+  // Fetch recommendations from backend
+  const fetchRecommendations = async () => {
+    const n = parseInt(top.replace('top ', '')) || 5;
+    const response = await fetch(`http://localhost:8000/recommend?keywords=${encodeURIComponent(prompt)}&top_n=${n}`);
+    const data = await response.json();
+    setAnimes(data);
+  };
+
+  const handleCardClick = idx => {
+    setSelectedAnime(idx);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setSelectedAnime(null);
+  };
+
+  const handleConfirm = () => {
+    if (selectedAnime !== null) {
+      window.location.href = animeLinks[selectedAnime];
+    }
+    handleModalClose();
+  };
+
+  return (
+    <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      {/* Fondo decorativo chicas anime */}
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
+      }}>
+        {/* Imágenes laterales */}
+        {backgroundGirls.map((url, idx) => (
+          <img
+            key={idx}
+            src={url}
+            alt="chica anime decorativa"
+            style={{
+              position: 'absolute',
+              left: `${10 + idx * 40}%`,
+              bottom: idx % 2 === 0 ? '0' : '10%',
+              width: '320px',
+              opacity: 0.13,
+              filter: 'blur(2px) grayscale(0.2)',
+              zIndex: 0,
+              userSelect: 'none',
+            }}
+          />
+        ))}
+        {/* Imagen central superior */}
+        <img
+          src={centralImage}
+          alt="chica anime central"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '50vw',
+            maxWidth: '700px',
+            opacity: 0.13,
+            filter: 'blur(2px) grayscale(0.2)',
+            zIndex: 0,
+            userSelect: 'none',
+          }}
+        />
+      </div>
+      {/* Contenido principal */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <h1>Recomendador de Anime</h1>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+          <textarea
+            value={prompt}
+            onChange={e => setPrompt(e.target.value)}
+            placeholder="Escribe aquí tu prompt o búsqueda de anime..."
+            style={{
+              width: '100%',
+              minHeight: '80px',
+              fontSize: '1.3rem',
+              padding: '1rem',
+              borderRadius: '10px',
+              border: '2px solid #61dafb',
+              resize: 'vertical',
+              boxSizing: 'border-box',
+              outline: 'none',
+              fontWeight: 'bold',
+            }}
+          />
+          <button
+            onClick={fetchRecommendations}
+            style={{
+              height: '80px',
+              padding: '0 2rem',
+              fontSize: '1.1rem',
+              fontWeight: 'bold',
+              background: '#61dafb',
+              color: '#222',
+              border: 'none',
+              borderRadius: '10px',
+              cursor: 'pointer',
+              marginLeft: '0.5rem',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Recomiéndame
+          </button>
+        </div>
+        <div style={{ marginBottom: '2rem', textAlign: 'left' }}>
+          <label htmlFor="top-select" style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>Mostrar:</label>
+          <select
+            id="top-select"
+            value={top}
+            onChange={e => setTop(e.target.value)}
+            style={{
+              fontSize: '1.1rem',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              border: '1.5px solid #61dafb',
+              outline: 'none',
+              fontWeight: 'bold',
+            }}
+          >
+            <option value="top 5">Top 5</option>
+            <option value="top 10">Top 10</option>
+            <option value="top 20">Top 20</option>
+            <option value="top 50">Top 50</option>
+            <option value="top 100">Top 100</option>
+          </select>
+        </div>
+        <ul style={{ listStyle: 'none', padding: 0 }}>
+          {animes.map((anime, idx) => (
+            <li
+              key={idx}
+              onClick={() => handleCardClick(idx)}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '1.5rem',
+                marginBottom: '2rem',
+                background: '#222',
+                borderRadius: '12px',
+                padding: '1rem',
+                boxShadow: '0 2px 8px #0002',
+                cursor: 'pointer',
+                transition: 'box-shadow 0.2s',
+              }}
+              title="Haz click para empezar este anime"
+            >
+              <img src={anime["Image URL"]} alt={anime.Name} style={{ width: 120, borderRadius: 8 }} />
+              <div style={{ textAlign: 'left' }}>
+                <h2 style={{ margin: '0 0 0.5rem 0' }}>{anime.Name}</h2>
+                <p style={{ margin: '0 0 0.5rem 0', color: '#bbb' }}>{anime.Synopsis}</p>
+                <div style={{ fontWeight: 'bold', color: '#ffd700' }}>Puntuación: {anime.Score}</div>
+                <div style={{ color: '#61dafb' }}>Ranking: #{anime.Rank}</div>
+              </div>
+            </li>
+          ))}
+        </ul>
+        {/* Modal personalizado */}
+        {modalOpen && selectedAnime !== null && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(20, 24, 38, 0.75)',
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(2px)'
+          }}>
+            <div style={{
+              background: '#23243a',
+              borderRadius: '18px',
+              padding: '2.5rem 2rem 2rem 2rem',
+              boxShadow: '0 8px 32px #0006',
+              minWidth: 320,
+              maxWidth: 380,
+              textAlign: 'center',
+              color: '#fff',
+              position: 'relative',
+            }}>
+              <img src={animes[selectedAnime]["Image URL"]} alt={animes[selectedAnime].Name} style={{ width: 90, borderRadius: 12, marginBottom: 16, boxShadow: '0 2px 8px #0003' }} />
+              <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem', color: '#61dafb' }}>{animes[selectedAnime].Name}</h2>
+              <p style={{ color: '#bbb', marginBottom: 24 }}>¿Deseas empezar este anime?</p>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
+                <button onClick={handleConfirm} style={{
+                  background: '#61dafb',
+                  color: '#23243a',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem',
+                  padding: '0.7rem 2.2rem',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}>うん</button>
+                <button onClick={handleModalClose} style={{
+                  background: '#23243a',
+                  color: '#fff',
+                  border: '2px solid #61dafb',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem',
+                  padding: '0.7rem 2.2rem',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s',
+                }}>いいえ</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App
