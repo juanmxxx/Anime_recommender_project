@@ -1,0 +1,2 @@
+Para desplegar el servidor cuando se abra el VSCode es: (puerto por defecto el 5173)
+    npm run dev
