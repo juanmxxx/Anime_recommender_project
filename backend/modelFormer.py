@@ -94,22 +94,68 @@ def recommend_anime(keywords: str, top_n: int = 10) -> pd.DataFrame:
     # 6. Return ALL columns for the top N anime
     return df.iloc[top_idx][df.columns]
 
+def print_usage():
+    """Print usage instructions for the command line interface"""
+    print("Uso: python modelFormer.py [keywords] [num_results]")
+    print("  keywords: Palabras clave para buscar anime (por defecto: 'Comedy magic romance')")
+    print("  num_results: Número de resultados a mostrar (por defecto: 5)")
+    print("\nEjemplo:")
+    print("  python modelFormer.py \"Action adventure fantasy\" 10")
+
 # Example usage
 if __name__ == '__main__':
     import sys
     import io
     import locale
     import json
-    # Set stdout encoding to utf-8 for Windows
+    
+    # Check if help was requested
+    if len(sys.argv) > 1 and sys.argv[1].lower() in ['-h', '--help', 'help']:
+        print_usage()
+        sys.exit(0)
+          # Set stdout encoding to utf-8 for Windows
     if sys.stdout.encoding.lower() != 'utf-8':
         sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
+        
+    try:
+        keywords = sys.argv[1] if len(sys.argv) > 1 else "Comedy magic romance"
+        top_n = int(sys.argv[2]) if len(sys.argv) > 2 else 5
+          # Solo imprime información si no es llamado por la API (tercer argumento)
+        is_api_call = len(sys.argv) > 3 and sys.argv[3] == "api_call"
+        
+        if not is_api_call:
+            print(f"Buscando animes con palabras clave: '{keywords}'")
+            print(f"Mostrando los {top_n} mejores resultados...\n")
+        
+        recs = recommend_anime(keywords, top_n=top_n)
 
-    keywords = sys.argv[1] if len(sys.argv) > 1 else "Comedy magic romance"
-    top_n = int(sys.argv[2]) if len(sys.argv) > 2 else 5
-    recs = recommend_anime(keywords, top_n=top_n)
-
-    # Remove columns that are not needed in the frontend (like bert_emb)
-    if 'bert_emb' in recs.columns:
-        recs = recs.drop(columns=['bert_emb'])
-    # Convert DataFrame to JSON and print
-    print(recs.to_json(orient='records', force_ascii=False))
+        # Remove columns that are not needed in the frontend (like bert_emb)
+        if 'bert_emb' in recs.columns:
+            recs = recs.drop(columns=['bert_emb'])
+              # Si es llamado por la API, simplemente devuelve el JSON
+        if is_api_call:
+            print(recs.to_json(orient='records', force_ascii=False))
+        else:
+            # Versión más legible para pruebas manuales
+            columns_to_display = ['Name', 'Score', 'Type', 'Episodes', 'Genres']
+            
+            # Asegurarse de que todas las columnas solicitadas existen en el DataFrame
+            columns_to_display = [col for col in columns_to_display if col in recs.columns]
+            
+            print("="*80)
+            for idx, anime in recs.iterrows():
+                print(f"{idx+1}. {anime['Name']} - Score: {anime['Score']:.2f}")
+                print(f"   Tipo: {anime.get('Type', 'N/A')} | Episodios: {anime.get('Episodes', 'N/A')}")
+                print(f"   Géneros: {anime.get('Genres', 'N/A')}")
+                if 'Synopsis' in anime:
+                    synopsis = anime['Synopsis']
+                    # Limitar sinopsis a 150 caracteres para la vista previa
+                    if isinstance(synopsis, str) and len(synopsis) > 150:
+                        synopsis = synopsis[:147] + "..."
+                    print(f"   Sinopsis: {synopsis}")
+                print("-"*80)
+        
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        print_usage()
+        sys.exit(1)

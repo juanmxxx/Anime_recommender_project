@@ -1,12 +1,37 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Como arrancar el servidor, esta todo en localhost, proceso:
 
-Currently, two official plugins are available:
+## Iniciar parte back end
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Importante: Antes de comenzar primero hay que activar el entorno que esta en la carpeta raiz
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+.venv\Scripts\activate
+```
+
+Ingresar siguientes comandos
+
+```
+cd backend
+uvicorn api:app --reload
+```
+
+## Inicializar parte front end
+
+Primero ingresar a la carpeta de frontend por comandos y escribir lo siguiente
+
+```
+cd frontend
+npm run dev
+```
+
+
+
+## Errores
+
+Si no funciona la parte de web cuando se hace una query o un request a la API, el problema puede ser en como se este comunicando la parte de la API con la parte del backend, para poder acceder al ENDPOINT y hacer un debug de lo que va sucediento se puede probar con esta direccion web y ejecutar ENDPOINTS a modo de request
+
+```
+http://localhost:8000/recommend?keywords=love%20war%20&top_n=34
+```
