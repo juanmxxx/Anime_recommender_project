@@ -286,7 +286,7 @@ function App() {
                     {/* Basic info: score and ranking */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                     <div style={{ fontWeight: 'bold', color: '#ffd700' }}>Score: {anime.Score}</div>
-                    <div style={{ color: '#61dafb' }}>Ranking: #{anime.Rank}</div>
+                    <div style={{ color: '#61dafb' }}>Ranking #{anime.Rank}</div>
                   </div>
                   
                   {/* Línea separadora */}
@@ -304,7 +304,27 @@ function App() {
                       border: '1px solid #555'
                     }}>
                       {anime.Type || 'TV'}
-                    </div>                    {/* Estado (Airing/Finished) */}
+                    </div>
+                    
+                    {/* Año de lanzamiento */}
+                    {anime.Aired && (
+                      <div style={{ 
+                        background: '#2d4838', 
+                        color: '#a0e6b8',
+                        padding: '4px 8px', 
+                        borderRadius: '4px',
+                        fontSize: '0.9rem',
+                        border: '1px solid #365544'
+                      }}>
+                        {(() => {
+                          // Extract year from Aired field
+                          const match = anime.Aired && anime.Aired.match(/\d{4}/);
+                          return match ? match[0] : 'Unknown year';
+                        })()}
+                      </div>
+                    )}
+                    
+                    {/* Estado (Airing/Finished) */}
                     <div style={{ 
                       background: anime.Status === 'Currently Airing' || anime.Status === 'Airing' ? '#9090c0' : '#2a2a3d', 
                       color: anime.Status === 'Currently Airing' || anime.Status === 'Airing' ? '#1e1e36' : '#ffffff',
@@ -393,13 +413,28 @@ function App() {
               textAlign: 'center',
               color: '#fff',
               position: 'relative',
-            }}>
-              <img 
+            }}>              <img 
                 src={animes[selectedAnime]["Image URL"]} 
                 alt={animes[selectedAnime].Name} 
                 style={{ width: 90, borderRadius: 12, marginBottom: 16, boxShadow: '0 2px 8px #0003' }} 
                 onError={(e) => { e.target.src = '/images/defaultImagePortrait.jpg'; }}
               />              <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem', color: '#61dafb' }}>{animes[selectedAnime].Name}</h2>
+              {animes[selectedAnime].Aired && (
+                <p style={{ 
+                  color: '#a0e6b8',
+                  fontSize: '0.9rem',
+                  margin: '0 0 12px 0',
+                  background: '#2d4838',
+                  display: 'inline-block',
+                  padding: '2px 8px',
+                  borderRadius: '4px'
+                }}>
+                  {(() => {
+                    const match = animes[selectedAnime].Aired.match(/\d{4}/);
+                    return match ? match[0] : 'Unknown year';
+                  })()}
+                </p>
+              )}
               <p style={{ color: '#bbb', marginBottom: 24 }}>Do you want to watch this anime?</p>
               <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
                 <button onClick={handleConfirm} style={{
