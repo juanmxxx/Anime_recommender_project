@@ -12,11 +12,19 @@ const backgroundGirls = [
 ];
 const centralImage = '/images/Mayoi_Owari3.webp';
 
-function App() {  const [prompt, setPrompt] = useState("");
+function App() {
+  // Initialize state from localStorage or use defaults
+  const [prompt, setPrompt] = useState(() => {
+    const saved = localStorage.getItem("lastAnimePrompt");
+    return saved || "";
+  });
   const [top, setTop] = useState("top 5");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState(null);
-  const [animes, setAnimes] = useState([]);
+  const [animes, setAnimes] = useState(() => {
+    const saved = localStorage.getItem("lastAnimeResults");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [isLoading, setIsLoading] = useState(false);
   
   // Function to generate AnimeFlv URL based on anime name
@@ -36,14 +44,18 @@ function App() {  const [prompt, setPrompt] = useState("");
     // Extract the number from strings like "top 5", "top 10", etc.
     return parseInt(top.split(' ')[1]);
   };
-  
-  // Fetch recommendations from backend
+    // Fetch recommendations from backend
   const fetchRecommendations = async () => {
     try {
       setIsLoading(true);
       // Always fetch top 100 recommendations
       const response = await fetch(`http://localhost:8000/recommend?keywords=${encodeURIComponent(prompt)}&top_n=100`);
       const data = await response.json();
+      
+      // Save results to localStorage for persistence
+      localStorage.setItem("lastAnimeResults", JSON.stringify(data));
+      localStorage.setItem("lastAnimePrompt", prompt);
+      
       setAnimes(data);
     } catch (error) {
       console.error("Error al obtener recomendaciones:", error);
@@ -117,7 +129,7 @@ function App() {  const [prompt, setPrompt] = useState("");
           }}
         />
       </div>      {/* Contenido principal */}
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1800px', margin: '0 auto', width: '90%', padding: '0 20px' }}>        <h1>Anime Recommender</h1>
+      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1800px', margin: '0 auto', width: '90%', padding: '0 20px' }}>        <h1>Smart Anime Recommender</h1>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>          <textarea
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
