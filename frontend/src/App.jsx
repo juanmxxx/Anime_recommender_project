@@ -12,18 +12,19 @@ const backgroundGirls = [
 ];
 const centralImage = '/images/Mayoi_Owari3.webp';
 
-function App() {
-  // Initialize state from localStorage or use defaults
+function App() {  
+  // Initialize state with localStorage values if they exist, otherwise empty values
   const [prompt, setPrompt] = useState(() => {
-    const saved = localStorage.getItem("lastAnimePrompt");
-    return saved || "";
+    const savedPrompt = localStorage.getItem("lastAnimePrompt");
+    return savedPrompt || "";
   });
   const [top, setTop] = useState("top 5");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAnime, setSelectedAnime] = useState(null);
   const [animes, setAnimes] = useState(() => {
-    const saved = localStorage.getItem("lastAnimeResults");
-    return saved ? JSON.parse(saved) : [];
+    // Intentar recuperar resultados previos del localStorage
+    const savedResults = localStorage.getItem("lastAnimeResults");
+    return savedResults ? JSON.parse(savedResults) : [];
   });
   const [isLoading, setIsLoading] = useState(false);
   
@@ -43,22 +44,33 @@ function App() {
   const getTopN = () => {
     // Extract the number from strings like "top 5", "top 10", etc.
     return parseInt(top.split(' ')[1]);
-  };
-    // Fetch recommendations from backend
+  };  // Fetch recommendations from backend
   const fetchRecommendations = async () => {
     try {
+      // Solo realizar búsqueda si hay texto en el prompt
+      if (!prompt.trim()) {
+        alert("Por favor ingresa una palabra clave para buscar animes");
+        return;
+      }
+      
       setIsLoading(true);
       // Always fetch top 100 recommendations
       const response = await fetch(`http://localhost:8000/recommend?keywords=${encodeURIComponent(prompt)}&top_n=100`);
       const data = await response.json();
       
-      // Save results to localStorage for persistence
-      localStorage.setItem("lastAnimeResults", JSON.stringify(data));
-      localStorage.setItem("lastAnimePrompt", prompt);
-      
-      setAnimes(data);
+      if (data && data.length > 0) {
+        // Save results to localStorage for persistence
+        localStorage.setItem("lastAnimeResults", JSON.stringify(data));
+        localStorage.setItem("lastAnimePrompt", prompt);
+        
+        setAnimes(data);
+      } else {
+        // Si no hay resultados, mostrar un mensaje
+        alert("No se encontraron animes que coincidan con tu búsqueda");
+      }
     } catch (error) {
       console.error("Error al obtener recomendaciones:", error);
+      alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
     } finally {
       setIsLoading(false);
     }
@@ -178,8 +190,7 @@ function App() {
                 Searching...
               </>            ) : 'Recommend'}
           </button>
-        </div>
-        <div style={{ marginBottom: '2rem', textAlign: 'left' }}>
+        </div>        <div style={{ marginBottom: '2rem', textAlign: 'left', display: 'flex', alignItems: 'center' }}>
           <label htmlFor="top-select" style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>Show:</label>
           <select
             id="top-select"
@@ -199,7 +210,39 @@ function App() {
             <option value="top 20">Top 20</option>
             <option value="top 50">Top 50</option>
             <option value="top 100">Top 100</option>
-          </select>        </div>          {isLoading && (
+          </select>
+          
+          {animes.length > 0 && (
+            <button
+              onClick={() => {
+                // Limpiar resultados y localStorage
+                setAnimes([]);
+                setPrompt("");
+                localStorage.removeItem("lastAnimeResults");
+                localStorage.removeItem("lastAnimePrompt");
+              }}
+              style={{
+                marginLeft: 'auto',
+                background: 'rgba(255, 100, 100, 0.2)',
+                color: '#ff6b6b',
+                border: '1px solid #ff6b6b',
+                borderRadius: '8px',
+                padding: '0.5rem 1rem',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px'
+              }}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              New Search
+            </button>
+          )}
+        </div>{isLoading && (
           <div style={{ 
             display: 'flex', 
             flexDirection: 'column', 
@@ -220,11 +263,56 @@ function App() {
               Finding the best anime for you...
             </p>
           </div>
+        )}        {!isLoading && animes.length === 0 && (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '2rem',
+            background: 'rgba(30, 30, 50, 0.5)',
+            borderRadius: '12px',
+            backdropFilter: 'blur(5px)',
+            marginTop: '2rem'
+          }}>
+            <h2 style={{ color: '#61dafb', marginBottom: '1rem' }}>¡Welcome to S.A.R dear friend!</h2>
+            <p style={{ fontSize: '1.1rem', lineHeight: '1.5', maxWidth: '600px', margin: '0 auto' }}>
+              Enter keywords related to the type of anime you would like to watch.
+              <br />For example, try genres such as “romance comedy”, “action adventure”, 
+              or even specific themes such as “cyberpunk dystopia”..
+            </p>
+            <div style={{
+              marginTop: '2rem',
+              display: 'flex',
+              justifyContent: 'center',
+              gap: '1rem',
+              flexWrap: 'wrap'
+            }}>
+              {["romance comedy", "action adventure", "sports", "fantasy magic", "slice of life", "psychological drama"].map(suggestion => (
+                <button 
+                  key={suggestion}
+                  onClick={() => {
+                    setPrompt(suggestion);
+                    // Opcionalmente, podríamos ejecutar la búsqueda automáticamente:
+                    // setTimeout(() => fetchRecommendations(), 100);
+                  }}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    background: '#333',
+                    color: '#fff',
+                    border: '1px solid #61dafb',
+                    borderRadius: '20px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
         )}
         
-        {!isLoading && (
+        {!isLoading && animes.length > 0 && (
           <ul style={{ listStyle: 'none', padding: 0 }}>
-            {animes.slice(0, getTopN()).map((anime, idx) => (              <li
+            {animes.slice(0, getTopN()).map((anime, idx) => (<li
                 key={idx}
                 onClick={() => handleCardClick(idx)}
                 style={{
@@ -385,8 +473,7 @@ function App() {
                   </div>
                 </div>
               </li>
-            ))}
-          </ul>
+            ))}          </ul>
         )}
         {/* Modal personalizado */}
         {modalOpen && selectedAnime !== null && (
