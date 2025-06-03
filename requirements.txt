@@ -1,0 +1,11 @@
+# filepath: c:\modeloProyectoIA\requirements_enhanced.txt
+pandas
+numpy
+torch
+transformers
+sentence-transformers
+keybert
+scikit-learn
+matplotlib
+seaborn
+spacy

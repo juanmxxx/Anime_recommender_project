@@ -1,4 +1,0 @@
-pandas
-keybert
-sentence-transformers
-torch
