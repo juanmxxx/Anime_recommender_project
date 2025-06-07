@@ -94,5 +94,7 @@ ehthumbs.db
 backend
 .apartado
 
-
-*.pyc
+diagrama_flujo_SAR.txt
+informe_tecnico_SAR.txt
+info
+frontend/src/App.jsx.fixed
