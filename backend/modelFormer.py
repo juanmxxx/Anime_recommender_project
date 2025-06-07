@@ -10,6 +10,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 import pickle
 import json
+import sqlalchemy
+
 
 # Function to get BERT embeddings for a batch of texts (batched for efficiency)
 def get_bert_embeddings(texts, tokenizer, model, device="cpu", max_length=128, batch_size=32):
@@ -64,13 +66,41 @@ def load_and_prepare_data():
     return False
 
 # Function to prepare data for training
+# Modifica la función prepare_training_data()
 def prepare_training_data():
     global df, anime_embeddings, tokenizer, bert_model, emb_dim, num_features
     
-    print("Preparing data for model training...")
-    # Load dataset
-    DATASET_PATH = './dataset/small2.csv'
-    df = pd.read_csv(DATASET_PATH)
+    print("Preparando datos para entrenamiento del modelo desde PostgreSQL...")
+        
+    # Configura la conexión a tu base de datos
+    engine = sqlalchemy.create_engine('postgresql://anime_db:anime_db@localhost:5432/animes')
+    
+    # Consulta SQL para obtener todos los datos de la tabla anime
+    query = "SELECT * FROM anime"
+    
+    # Cargar datos en DataFrame de pandas
+    df = pd.read_sql_query(query, engine)
+    
+    # Verificar columnas requeridas
+    required_cols = ["anime_id", "name", "genres", "synopsis", "score"]
+    missing_cols = [col for col in required_cols if col.lower() not in [c.lower() for c in df.columns]]
+    
+    if missing_cols:
+        print(f"Advertencia: Faltan columnas importantes en la base de datos: {', '.join(missing_cols)}")
+        print("Agregando columnas vacías para continuar...")
+        for col in missing_cols:
+            df[col] = "" if col != "score" else 0.0
+    
+    # Asegurar que los nombres de columnas sean consistentes
+    df.columns = [col.capitalize() if col.lower() == "name" else 
+                 col.title() if col.lower() == "english_name" else
+                 "Score" if col.lower() == "score" else
+                 "Genres" if col.lower() == "genres" else
+                 "Synopsis" if col.lower() == "synopsis" else
+                 "Rank" if col.lower() == "rank" else
+                 "Popularity" if col.lower() == "popularity" else
+                 "Favorites" if col.lower() == "favorites" else
+                 col for col in df.columns]
     
     # Fill missing values
     for col in ["Score", "Rank", "Popularity", "Favorites"]:
