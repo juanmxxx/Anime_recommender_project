@@ -74,5 +74,5 @@ for p in prompts:
     # Segunda parte: estilo Google, elimina preposiciones y artículos
     if keyphrases:
         google_style = ', '.join(remove_prepositions(kp) for kp in keyphrases.split(', '))
-        print("Final-keyphrase:", google_style)
+        print("Final-key:", google_style)
     print()

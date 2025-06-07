@@ -8,3 +8,8 @@ http://localhost:8000/recommend?keywords=a%20female%20protagonist%20with%20a%20r
 
 
 prompt generacion modelo: necesito que a partir de mi base de datos en postgre, donde tengo los datos, en este script vacio haga 2 cosas, por un lado crear desde 0 un modelo de IA, con deep learning, el algoritmo que prefieras o el que mejor de adapte, pero antes de ir a entrenar un modelo que se asegure que el modelo existe, en una carpeta llamada 'model' y avise de que hay un modelo ya entrenado o si no existe que lo cree. y por otra parte, que coja y el modelo que esta ya entrenado lo reentrene, si no hay modelo que avise y de una pequeña ayuda de como se hace mediante la ejecucion del script y argumentos. El modelo va a consistir en lo siguiente, en la base de datos hay 19000 y algo entradas de diferentes animes, con bastante informacion, todo en ingles, descripcion, genero, nombre, puntuacion, popularidad, bien a partir de ello y con esos datos para entrenar que el modelo sea capaz de hacer lo siguiente, le paso un prompt de recomendacion y el modelo debe de sacarme los animes relacionados a ese prompt. Por otra parte, el sesgo que debe de seguir es el siguiente: priorizar los animes dentro de las coincidencias que tenga el modelo, el mismo modelo las clasifique o priorize por fecha los animes mas recientes y tambien priorize por el campo popularity, si tiene un numero mayor ese es el que debe de priorizar. La generacion del modelo a ser posible que sea con el menor codigo posible, ordenado en funciones, bien comentado con comentarios en español. Cualquier informacion de mas que sea necesario o concretizacion pidemela primero, lo que haga falta 
+
+
+iniciar API:
+cd C:\proyectoIA
+.\.venv311\Scripts\python -m uvicorn backendMejorado.API.api:app --reload
