@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Test script to verify the recommendHandler is working correctly
+Test script to verify the outputAndFormatProcessor is working correctly
 """
 
 import os
@@ -11,8 +11,8 @@ import traceback
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 try:
-    # Import recommendHandler
-    from AI.recommendHandler import get_recommendations_text, get_recommendations_json
+    # Import outputAndFormatProcessor
+    from backend.AI.outputAndFormatProcessor import get_recommendations_text, get_recommendations_json
     
     # Test with a simple prompt
     test_prompt = "action anime with magic powers"

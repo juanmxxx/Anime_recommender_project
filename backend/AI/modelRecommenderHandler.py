@@ -36,7 +36,7 @@ import sys
 
 # Agregar directorio actual al path para importar modelTokenizerHandler
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from modelTokenizerHandler import extract_keyphrases, remove_prepositions
+from backend.AI.phraseTokernizer import extract_keyphrases, remove_prepositions
 
 # Configuración de rutas
 BASE_DIR = Path(__file__).parent

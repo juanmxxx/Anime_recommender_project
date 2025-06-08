@@ -10,7 +10,7 @@ Sistema de recomendación basado en contenido que utiliza:
 - Búsqueda especializada para animes de ídolos
 
 Uso:
-    python recommendHandler_improved.py "aspiring idols who wants to be the best"
+    python outputAndFormatProcessor_improved.py "aspiring idols who wants to be the best"
 """
 
 import sys
@@ -28,7 +28,7 @@ from datetime import datetime
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Importar el tokenizador
-from modelTokenizerHandler import extract_keyphrases, remove_prepositions
+from backend.AI.phraseTokernizer import extract_keyphrases, remove_prepositions
 
 # Configuración de rutas
 BASE_DIR = Path(__file__).parent
