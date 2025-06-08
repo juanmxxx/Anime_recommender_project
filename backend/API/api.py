@@ -13,9 +13,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AI'))
 
 # Importar directamente las funciones del recomendador
 try:
-    from recommendHandler import get_recommendations_json, AnimeRecommendationSystem
+    from recommendHandler import get_recommendations_json, ImprovedAnimeRecommendationSystem
     # Inicializar el sistema una vez para reutilizarlo en todas las peticiones
-    anime_system = AnimeRecommendationSystem()
+    anime_system = ImprovedAnimeRecommendationSystem()
 except Exception as e:
     print(f"Error al importar recommendHandler: {e}")
     traceback.print_exc()
