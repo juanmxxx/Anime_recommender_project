@@ -23,16 +23,26 @@ import pandas as pd
 from typing import List, Dict, Union, Optional, Tuple
 import re
 from datetime import datetime
+import psycopg2
+from sqlalchemy import create_engine
 
 # Agregar directorio actual al path para importar modelTokenizerHandler
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Importar el tokenizador
-from backend.AI.phraseTokernizer import extract_keyphrases, remove_prepositions
+from phraseTokernizer import extract_keyphrases, remove_prepositions
 
 # Configuración de rutas
 BASE_DIR = Path(__file__).parent
-DATASET_CSV = BASE_DIR.parent / "data" / "init-scripts" / "anime-dataset-2023-cleaned.csv"
+
+# Configuración de base de datos
+DB_CONFIG = {
+    'host': 'localhost',
+    'port': '5432',
+    'database': 'animes',
+    'user': 'anime_db',
+    'password': 'anime_db'
+}
 
 class ImprovedAnimeRecommendationSystem:
     """Sistema de recomendación de animes mejorado basado en contenido"""
@@ -43,47 +53,80 @@ class ImprovedAnimeRecommendationSystem:
         
         # Cargar datos de anime
         self._load_anime_data()
+    
+    def _get_db_connection(self):
+        """Crea conexión a la base de datos PostgreSQL"""
+        try:
+            conn_string = f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
+            engine = create_engine(conn_string)
+            return engine
+        except Exception as e:
+            print(f"Error conectando a la base de datos: {e}")
+            raise
         
     def _load_anime_data(self):
-        """Carga los datos de anime desde CSV"""
+        """Carga los datos de anime desde PostgreSQL y filtra 'Not Yet Aired'"""
         try:
-            # Cargar desde CSV
-            if not DATASET_CSV.exists():
-                raise FileNotFoundError(f"Dataset no encontrado en {DATASET_CSV}")
-                
-            self.df = pd.read_csv(DATASET_CSV)
-            self.df = self.df.dropna(subset=['Synopsis'])
+            engine = self._get_db_connection()
             
-            # Renombrar columnas para consistencia
-            column_mapping = {
-                'Name': 'name',
-                'English name': 'english_name', 
-                'Other name': 'other_name',
-                'Score': 'score',
-                'Genres': 'genres',
-                'Synopsis': 'synopsis',
-                'Type': 'type',
-                'Episodes': 'episodes',
-                'Aired': 'aired',
-                'Status': 'status',
-                'Producers': 'producers',
-                'Licensors': 'licensors',
-                'Studios': 'studios',
-                'Source': 'source',
-                'Duration': 'duration',
-                'Rating': 'rating',
-                'Rank': 'rank',
-                'Popularity': 'popularity',
-                'Favorites': 'favorites',
-                'Image URL': 'image_url'            }
+            # Query para obtener datos de animes, excluyendo 'Not Yet Aired'
+            query = """
+            SELECT 
+                anime_id,
+                name,
+                english_name,
+                other_name,
+                score,
+                genres,
+                synopsis,
+                type,
+                episodes,
+                aired,
+                status,
+                producers,
+                licensors,
+                studios,
+                source,
+                duration,
+                rating,
+                rank,
+                popularity,
+                favorites,
+                image_url
+            FROM anime
+            WHERE synopsis IS NOT NULL 
+            AND synopsis != ''
+            AND aired != 'Not available'
+            AND aired IS NOT NULL
+            ORDER BY anime_id
+            """
             
-            self.df.rename(columns={k: v for k, v in column_mapping.items() if k in self.df.columns}, inplace=True)
+            print("Cargando datos desde PostgreSQL...")
+            self.df = pd.read_sql_query(query, engine)
             
-            print(f"Dataset cargado: {len(self.df)} animes")
+            # Verificar que tenemos datos
+            if self.df.empty:
+                raise ValueError("No se encontraron datos en la base de datos")
+            
+            # Limpiar y procesar datos
+            self.df = self.df.dropna(subset=['synopsis'])
+            
+            # Llenar valores NaN
+            self.df['favorites'] = pd.to_numeric(self.df['favorites'], errors='coerce').fillna(0)
+            self.df['aired'] = self.df['aired'].fillna('Unknown')
+            
+            # Asegurar que todas las columnas están en minúsculas para consistencia interna
+            self.df.columns = [col.lower() for col in self.df.columns]
+            
+            print(f"Dataset cargado desde PostgreSQL: {len(self.df)} animes")
+            print(f"Registros con 'Not Yet Aired' excluidos")
             
         except Exception as e:
-            print(f"Error al cargar los datos de anime: {e}")
+            print(f"Error al cargar los datos de la base de datos: {e}")
             raise
+        finally:
+            if 'engine' in locals():
+                engine.dispose()
     
     def process_prompt(self, prompt: str) -> str:
         """Procesa el prompt para extraer keyphrases mejoradas"""
@@ -176,20 +219,6 @@ class ImprovedAnimeRecommendationSystem:
                 if 'english_name' in df_work.columns:
                     english_match = df_work['english_name'].str.lower().str.contains(keyword, na=False)
                     df_work.loc[english_match, 'content_score'] += 4.0
-        
-        # Búsqueda especial para animes de ídolos
-        if idol_related:
-            # Buscar series conocidas de ídolos
-            idol_series = ['love live', 'idolmaster', 'aikatsu', 'wake up girls', 'akb0048', 
-                          'macross', 'gravitation', 'perfect blue', 'idol', 'singer']
-            
-            for series in idol_series:
-                series_match = (
-                    df_work['name'].str.lower().str.contains(series, na=False) |
-                    df_work['synopsis'].str.lower().str.contains(series, na=False) |
-                    df_work['genres'].str.lower().str.contains(series, na=False)
-                )
-                df_work.loc[series_match, 'content_score'] += 8.0
         
         # 2. SCORE DE POPULARIDAD (basado en favoritos)
         if 'favorites' in df_work.columns:

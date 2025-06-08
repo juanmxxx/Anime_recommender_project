@@ -495,7 +495,7 @@ function App() {
                     </div>
                     {getAnimeField(anime, "recommendation_score") && (
                       <div style={{ fontWeight: 'bold', color: '#7df740' }}>
-                        Match: {(getAnimeField(anime, "recommendation_score") * 100).toFixed(1)}%
+                        Match: {(getAnimeField(anime, "recommendation_score") * 100 * (-1)).toFixed(1)}%
                       </div>
                     )}
                   </div>
