@@ -1,0 +1,8 @@
+{
+  "embedding_model": "all-MiniLM-L6-v2",
+  "embedding_dim": 384,
+  "dataset_size": 3000,
+  "device": "cuda",
+  "model_path": "C:\\proyectoIA\\backend\\AI\\model\\anime_recommender.pt",
+  "embeddings_path": "C:\\proyectoIA\\backend\\AI\\model\\anime_embeddings.npy"
+}

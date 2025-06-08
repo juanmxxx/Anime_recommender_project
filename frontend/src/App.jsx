@@ -65,11 +65,48 @@ function App() {
     
     return null; // No se encontró el campo
   };
-  
-  // Debug function to log anime data structure
+    // Debug function to log anime data structure
   const debugAnimeData = (anime) => {
     console.log("Estructura de datos del anime:", anime);
     return anime;
+  };
+  
+  // Handler for suggestion button clicks
+  const handleSuggestionClick = async (suggestion) => {
+    if (suggestion && suggestion.trim()) {
+      try {
+        setIsLoading(true);
+        
+        // Importamos dinámicamente la configuración de API
+        const { API_URLS } = await import('./config');
+        
+        // Use the suggestion directly without checking prompt state
+        const response = await fetch(API_URLS.recommend(suggestion, 100));
+        const data = await response.json();
+        
+        if (data && data.recommendations && data.recommendations.length > 0) {
+          // Mostrar estructura en modo debug
+          if (debugMode) {
+            console.log("Estructura de datos recibida:", data.recommendations[0]);
+          }
+          
+          // Save results to localStorage for persistence
+          localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
+          localStorage.setItem("lastAnimePrompt", suggestion);
+          
+          // Guardar solo el array de recomendaciones
+          setAnimes(data.recommendations);
+        } else {
+          // Si no hay resultados, mostrar un mensaje
+          alert("No se encontraron animes que coincidan con tu búsqueda");
+        }
+      } catch (error) {
+        console.error("Error al obtener recomendaciones:", error);
+        alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
   };
   
   // Fetch recommendations from backend  
@@ -327,14 +364,14 @@ function App() {
               justifyContent: 'center',
               gap: '1rem',
               flexWrap: 'wrap'
-            }}>
-              {["romance comedy", "action adventure", "sports", "fantasy magic", "slice of life", "psychological drama"].map(suggestion => (
+            }}>              {["romance comedy", "action adventure", "sports", "fantasy magic", "slice of life", "psychological drama"].map(suggestion => (
                 <button 
                   key={suggestion}
                   onClick={() => {
                     setPrompt(suggestion);
-                    // Opcionalmente, podríamos ejecutar la búsqueda automáticamente:
-                    setTimeout(() => fetchRecommendations(), 200);
+                    // Ejecutamos la búsqueda inmediatamente con el valor de sugerencia
+                    // en lugar de esperar a que se actualice el estado
+                    handleSuggestionClick(suggestion);
                   }}
                   style={{
                     padding: '0.5rem 1rem',
