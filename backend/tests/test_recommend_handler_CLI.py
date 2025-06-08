@@ -10,7 +10,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AI'))
 
 
-from recommendHandler import get_recommendations_text, get_recommendations_json
+from outputAndFormatProcessor import get_recommendations_text, get_recommendations_json
 
 def test_recommendation():
     """

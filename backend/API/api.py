@@ -10,14 +10,15 @@ import pathlib
 
 # Agregar la ruta al directorio AI al path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AI'))
-
+# Agregar la ruta base del proyecto para resolver imports de 'backend'
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 # Importar directamente las funciones del recomendador
 try:
-    from recommendHandler import get_recommendations_json, ImprovedAnimeRecommendationSystem
+    from outputAndFormatProcessor import get_recommendations_json, ImprovedAnimeRecommendationSystem
     # Inicializar el sistema una vez para reutilizarlo en todas las peticiones
     anime_system = ImprovedAnimeRecommendationSystem()
 except Exception as e:
-    print(f"Error al importar recommendHandler: {e}")
+    print(f"Error al importar outputAndFormatProcessor: {e}")
     traceback.print_exc()
     anime_system = None
 
