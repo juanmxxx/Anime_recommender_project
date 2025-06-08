@@ -33,16 +33,27 @@ from datetime import datetime
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 import sys
+import psycopg2
+from sqlalchemy import create_engine
 
 # Agregar directorio actual al path para importar modelTokenizerHandler
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from backend.AI.phraseTokernizer import extract_keyphrases, remove_prepositions
+
+from phraseTokernizer import extract_keyphrases
+
 
 # Configuración de rutas
 BASE_DIR = Path(__file__).parent
 MODEL_DIR = BASE_DIR / "model"
-DATA_DIR = BASE_DIR.parent / "data"
-DATASET_CSV = DATA_DIR / "init-scripts" / "anime-dataset-2023-cleaned.csv"
+
+# Configuración de base de datos
+DB_CONFIG = {
+    'host': 'localhost',
+    'port': '5432',
+    'database': 'animes',
+    'user': 'anime_db',
+    'password': 'anime_db'
+}
 
 class ImprovedRecommendationMLP(nn.Module):
     """Red neuronal mejorada para recomendación con features adicionales"""
@@ -50,50 +61,121 @@ class ImprovedRecommendationMLP(nn.Module):
     def __init__(self, embedding_dim=384, additional_features=4):
         super().__init__()
         
-        # Capa de procesamiento de embeddings
-        self.embedding_processor = nn.Sequential(
-            nn.Linear(embedding_dim * 2, 512),
-            nn.BatchNorm1d(512),
+        # Capa de procesamiento de embeddings con conexiones residuales
+        self.embedding_input = nn.Linear(embedding_dim * 2, 512)
+        self.embedding_norm1 = nn.LayerNorm(512)
+        self.embedding_block1 = nn.Sequential(
+            nn.Linear(512, 512),
+            nn.LayerNorm(512),
             nn.ReLU(),
-            nn.Dropout(0.3)
+            nn.Dropout(0.2)
         )
-        
-        # Capa de procesamiento de features adicionales
-        self.feature_processor = nn.Sequential(
-            nn.Linear(additional_features, 64),
-            nn.BatchNorm1d(64),
+        self.embedding_block2 = nn.Sequential(
+            nn.Linear(512, 512),
+            nn.LayerNorm(512),
             nn.ReLU(),
             nn.Dropout(0.2)
         )
         
-        # Capas de combinación
-        self.combiner = nn.Sequential(
-            nn.Linear(512 + 64, 256),
-            nn.BatchNorm1d(256),
+        # Capa de procesamiento de features adicionales mejorada
+        self.feature_processor = nn.Sequential(
+            nn.Linear(additional_features, 32),
+            nn.LayerNorm(32),
             nn.ReLU(),
-            nn.Dropout(0.3),
+            nn.Dropout(0.1),
+            nn.Linear(32, 64),
+            nn.LayerNorm(64),
+            nn.ReLU(),
+            nn.Dropout(0.1)
+        )
+        
+        # Attention mechanism simple para features
+        self.attention = nn.Sequential(
+            nn.Linear(512 + 64, 128),
+            nn.Tanh(),
+            nn.Linear(128, 1),
+            nn.Softmax(dim=1)
+        )
+        
+        # Capas de combinación con conexiones residuales y normalización
+        self.combiner_input = nn.Linear(512 + 64, 256)
+        self.combiner_norm1 = nn.LayerNorm(256)
+        
+        self.combiner_block1 = nn.Sequential(
+            nn.Linear(256, 256),
+            nn.LayerNorm(256),
+            nn.ReLU(),
+            nn.Dropout(0.2)
+        )
+        
+        self.combiner_block2 = nn.Sequential(
             nn.Linear(256, 128),
-            nn.BatchNorm1d(128),
+            nn.LayerNorm(128),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.15)
+        )
+        
+        # Capa final con menos dropout para mejor precisión
+        self.final_layers = nn.Sequential(
             nn.Linear(128, 64),
             nn.ReLU(),
-            nn.Linear(64, 1),
+            nn.Dropout(0.1),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1),
             nn.Sigmoid()
         )
+        
+        # Inicialización de pesos Xavier/Glorot
+        self._initialize_weights()
+    
+    def _initialize_weights(self):
+        """Inicializa los pesos usando Xavier initialization"""
+        for module in self.modules():
+            if isinstance(module, nn.Linear):
+                nn.init.xavier_uniform_(module.weight)
+                if module.bias is not None:
+                    nn.init.constant_(module.bias, 0)
     
     def forward(self, keyphrase_emb, anime_emb, additional_features):
-        # Procesar embeddings
+        # Procesar embeddings con conexiones residuales
         combined_emb = torch.cat([keyphrase_emb, anime_emb], dim=1)
-        emb_features = self.embedding_processor(combined_emb)
+        emb_out = self.embedding_input(combined_emb)
+        emb_out = self.embedding_norm1(emb_out)
+        emb_out = nn.ReLU()(emb_out)
+        
+        # Bloques residuales para embeddings
+        residual = emb_out
+        emb_out = self.embedding_block1(emb_out)
+        emb_out = emb_out + residual  # Conexión residual
+        
+        residual = emb_out
+        emb_out = self.embedding_block2(emb_out)
+        emb_out = emb_out + residual  # Conexión residual
         
         # Procesar features adicionales
         add_features = self.feature_processor(additional_features)
         
         # Combinar todas las features
-        combined = torch.cat([emb_features, add_features], dim=1)
+        combined = torch.cat([emb_out, add_features], dim=1)
         
-        return self.combiner(combined)
+        # Aplicar atención simple (opcional, para dar más importancia a ciertas features)
+        combined_out = self.combiner_input(combined)
+        combined_out = self.combiner_norm1(combined_out)
+        combined_out = nn.ReLU()(combined_out)
+        
+        # Bloques con conexiones residuales en el combinador
+        residual = combined_out
+        combined_out = self.combiner_block1(combined_out)
+        if combined_out.shape == residual.shape:
+            combined_out = combined_out + residual
+        
+        combined_out = self.combiner_block2(combined_out)
+        
+        # Capa final
+        output = self.final_layers(combined_out)
+        
+        return output
 
 class ImprovedAnimeRecommender:
     """Sistema de recomendación de animes mejorado con Deep Learning"""
@@ -125,50 +207,100 @@ class ImprovedAnimeRecommender:
             'mystery': ['detective', 'investigation', 'puzzle', 'suspense']
         }
         
-    def load_data_from_csv(self):
-        """Carga datos desde CSV con renombramiento de columnas"""
+        # Keywords específicos para ídolos
+        self.idol_keywords = ['idol', 'singer', 'performer', 'entertainment', 'dreams', 'goals', 'ambitions']
+    
+    def get_db_connection(self):
+        """Crea conexión a la base de datos PostgreSQL"""
         try:
-            if not DATASET_CSV.exists():
-                raise FileNotFoundError(f"Dataset no encontrado en {DATASET_CSV}")
-                
-            self.df = pd.read_csv(DATASET_CSV)
-            self.df = self.df.dropna(subset=['Synopsis'])
+            conn_string = f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['database']}"
+            engine = create_engine(conn_string)
+            return engine
+        except Exception as e:
+            print(f"Error conectando a la base de datos: {e}")
+            raise
+    
+    def load_data_from_database(self):
+        """Carga datos desde PostgreSQL con filtrado de 'Not Yet Aired'"""
+        try:
+            engine = self.get_db_connection()
             
-            # Renombrar columnas para consistencia
-            column_mapping = {
-                'Name': 'name',
-                'English name': 'english_name', 
-                'Other name': 'other_name',
-                'Score': 'score',
-                'Genres': 'genres',
-                'Synopsis': 'synopsis',
-                'Type': 'type',
-                'Episodes': 'episodes',
-                'Aired': 'aired',
-                'Status': 'status',
-                'Producers': 'producers',
-                'Licensors': 'licensors',
-                'Studios': 'studios',
-                'Source': 'source',
-                'Duration': 'duration',
-                'Rating': 'rating',
-                'Rank': 'rank',
-                'Popularity': 'popularity',
-                'Favorites': 'favorites',
-                'Image URL': 'image_url'
-            }
+            # Query para obtener datos de animes, excluyendo 'Not Yet Aired'
+            query = """
+            SELECT 
+                anime_id,
+                name,
+                english_name,
+                other_name,
+                score,
+                genres,
+                synopsis,
+                type,
+                episodes,
+                aired,
+                status,
+                producers,
+                licensors,
+                studios,
+                source,
+                duration,
+                rating,
+                rank,
+                popularity,
+                favorites,
+                image_url
+            FROM anime
+            WHERE synopsis IS NOT NULL 
+            AND synopsis != ''
+            AND aired != 'Not available'
+            AND aired IS NOT NULL
+            ORDER BY anime_id
+            """
             
-            self.df.rename(columns={k: v for k, v in column_mapping.items() if k in self.df.columns}, inplace=True)
+            print("Cargando datos desde PostgreSQL...")
+            self.df = pd.read_sql_query(query, engine)
+            
+            # Verificar que tenemos datos
+            if self.df.empty:
+                raise ValueError("No se encontraron datos en la base de datos")
+            
+            # Limpiar y procesar datos
+            self.df = self.df.dropna(subset=['synopsis'])
             
             # Llenar valores NaN
             self.df['favorites'] = pd.to_numeric(self.df['favorites'], errors='coerce').fillna(0)
-            self.df['aired'] = self.df['aired'].fillna('Not available')
+            self.df['aired'] = self.df['aired'].fillna('Unknown')
             
-            print(f"Dataset cargado: {len(self.df)} animes")
+            # Resetear índice para usar como anime_id interno
+            self.df = self.df.reset_index(drop=True)
+            
+            print(f"Dataset cargado desde PostgreSQL: {len(self.df)} animes")
+            print(f"Registros con 'Not Yet Aired' excluidos")
+            
+            # Mostrar estadísticas básicas
+            # Extraer años y calcular rango de manera más segura
+            years = self.df['aired'].str.extract(r'(\d{4})').dropna()
+            if not years.empty:
+                min_year = int(years.astype(int).min())
+                max_year = int(years.astype(int).max())
+                year_range = f"{min_year} - {max_year}"
+            else:
+                year_range = "N/A"
+                
+            print(f"Rango de años: {year_range}")
+            print(f"Promedio de favoritos: {self.df['favorites'].mean():.0f}")
             
         except Exception as e:
-            print(f"Error al cargar los datos de anime: {e}")
+            print(f"Error al cargar los datos de la base de datos: {e}")
             raise
+        finally:
+            if 'engine' in locals():
+                engine.dispose()
+    
+    def load_data_from_csv(self):
+        """Método legacy - mantener por compatibilidad pero usar load_data_from_database"""
+        print("Método CSV deshabilitado. Usando base de datos PostgreSQL...")
+        self.load_data_from_database()
     
     def extract_year_from_aired(self, aired_str: str) -> int:
         """Extrae el año de la fecha de emisión"""
@@ -395,7 +527,7 @@ class ImprovedAnimeRecommender:
     def train_model(self, epochs=50, batch_size=32, learning_rate=0.001):
         """Entrena el modelo de deep learning"""
         if self.df is None:
-            self.load_data_from_csv()
+            self.load_data_from_database()  # Cambiar a cargar desde DB
         
         if self.anime_embeddings is None:
             self.compute_anime_embeddings()
@@ -539,11 +671,11 @@ class ImprovedAnimeRecommender:
             raise FileNotFoundError(f"Modelo no encontrado en {model_path}")
         
         if not embeddings_path.exists():
-            raise FileNotFoundError(f"Embeddings no encontrados en {embeddings_path}")
+            raise FileNotFoundException(f"Embeddings no encontrados en {embeddings_path}")
         
         # Cargar datos si no están cargados
         if self.df is None:
-            self.load_data_from_csv()
+            self.load_data_from_database()  # Cambiar a cargar desde DB
         
         # Cargar embeddings
         self.anime_embeddings = torch.tensor(np.load(embeddings_path), device=self.device)
@@ -621,11 +753,64 @@ class ImprovedAnimeRecommender:
             recommendations.append(recommendation)
         
         return recommendations
+    
+    def delete_models(self):
+        """Elimina todos los modelos y embeddings guardados"""
+        try:
+            # Lista ampliada de archivos y patrones a eliminar
+            files_to_delete = [
+                MODEL_DIR / "anime_recommender_improved.pt",
+                MODEL_DIR / "anime_embeddings_improved.npy",
+                MODEL_DIR / "*.pt",  # Cualquier otro checkpoint de modelo
+                MODEL_DIR / "*.npy",  # Cualquier otro archivo de embeddings
+                MODEL_DIR / "*.bin",  # Posibles archivos binarios
+                MODEL_DIR / "model_info.json",  # Configuraciones o metadatos
+                MODEL_DIR / "*.log"   # Archivos de log de entrenamiento
+            ]
+            
+            deleted_files = []
+            
+            # Procesar archivos específicos primero
+            for i in range(2):
+                file_path = files_to_delete[i]
+                if file_path.exists():
+                    file_path.unlink()
+                    deleted_files.append(str(file_path))
+                    print(f"✓ Eliminado: {file_path}")
+                else:
+                    print(f"✗ No encontrado: {file_path}")
+            
+            # Procesar patrones con glob
+            for pattern in files_to_delete[2:]:
+                for file_path in MODEL_DIR.glob(pattern.name):
+                    if file_path.exists() and file_path.is_file():
+                        file_path.unlink()
+                        deleted_files.append(str(file_path))
+                        print(f"✓ Eliminado: {file_path}")
+            
+            # Limpiar variables de clase
+            self.anime_embeddings = None
+            self.deep_model = None
+            self.scaler = StandardScaler()  # Reiniciar scaler
+            
+            # Mostrar resumen
+            if deleted_files:
+                print(f"\n🗑️  Se eliminaron {len(deleted_files)} archivos:")
+                for file in deleted_files:
+                    print(f"   - {file}")
+            else:
+                print("📂 No se encontraron archivos de modelo para eliminar")
+            
+            print("\n💾 Memoria liberada y modelos eliminados")
+                
+        except Exception as e:
+            print(f"❌ Error al eliminar modelos: {e}")
+            raise
 
 def main():
     parser = argparse.ArgumentParser(description='Sistema de Recomendación de Animes Mejorado')
-    parser.add_argument('action', choices=['train', 'recommend'], 
-                       help='Acción a realizar: train o recommend')
+    parser.add_argument('action', choices=['train', 'recommend', 'delete'], 
+                       help='Acción a realizar: train, recommend o delete')
     parser.add_argument('query', nargs='?', 
                        help='Query para recomendación (requerido para recommend)')
     parser.add_argument('--top_n', type=int, default=10, 
@@ -666,6 +851,11 @@ def main():
             synopsis = rec['synopsis'][:200] + "..." if len(rec['synopsis']) > 200 else rec['synopsis']
             print(f"   Sinopsis: {synopsis}")
             print("-" * 80)
+    
+    elif args.action == 'delete':
+        print("🗑️  Eliminando modelos existentes...")
+        recommender.delete_models()
+        print("✅ Proceso de eliminación completado!")
 
 if __name__ == "__main__":
     main()
