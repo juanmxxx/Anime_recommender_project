@@ -12,4 +12,8 @@ prompt generacion modelo: necesito que a partir de mi base de datos en postgre, 
 
 iniciar API:
 cd C:\proyectoIA
-.\.venv311\Scripts\python -m uvicorn backendMejorado.API.api:app --reload
+.\.venv311\Scripts\python -m uvicorn backend.API.api:app --reload
+
+
+Para desplegar el servidor cuando se abra el VSCode es: (puerto por defecto el 5173)
+    npm run dev
