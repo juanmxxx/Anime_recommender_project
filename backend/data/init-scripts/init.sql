@@ -62,3 +62,35 @@ FROM tmp_anime;
 
 DROP TABLE tmp_anime;
 
+-- Tabla de métricas para tracking de conversión
+CREATE TABLE IF NOT EXISTS user_metrics (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(50) NOT NULL,
+    event_type VARCHAR(20) NOT NULL, -- 'search' o 'click'
+    prompt_text TEXT,
+    anime_clicked VARCHAR(255),
+    anime_id INTEGER,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_agent TEXT,
+    ip_address INET
+);
+
+-- Índices para optimizar consultas de métricas
+CREATE INDEX idx_user_metrics_session ON user_metrics(session_id);
+CREATE INDEX idx_user_metrics_event_type ON user_metrics(event_type);
+CREATE INDEX idx_user_metrics_timestamp ON user_metrics(timestamp);
+
+-- Vista para calcular tasa de conversión
+CREATE OR REPLACE VIEW conversion_metrics AS
+SELECT 
+    DATE(timestamp) as date,
+    COUNT(CASE WHEN event_type = 'search' THEN 1 END) as total_searches,
+    COUNT(CASE WHEN event_type = 'click' THEN 1 END) as total_clicks,
+    ROUND(
+        (COUNT(CASE WHEN event_type = 'click' THEN 1 END)::decimal / 
+         NULLIF(COUNT(CASE WHEN event_type = 'search' THEN 1 END), 0)) * 100, 2
+    ) as conversion_rate_percent
+FROM user_metrics 
+GROUP BY DATE(timestamp)
+ORDER BY date DESC;
+

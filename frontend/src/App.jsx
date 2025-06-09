@@ -4,6 +4,85 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 
+// Generar ID de sesión único
+const generateSessionId = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
+};
+
+// Obtener o crear session ID
+const getSessionId = () => {
+  let sessionId = sessionStorage.getItem('sar_session_id');
+  if (!sessionId) {
+    sessionId = generateSessionId();
+    sessionStorage.setItem('sar_session_id', sessionId);
+  }
+  return sessionId;
+};
+
+// Función para enviar métricas al backend
+const trackEvent = async (eventType, data = {}) => {
+  try {
+    const { API_URLS } = await import('./config');
+    const endpoint = eventType === 'search' ? API_URLS.logSearch : API_URLS.logClick;
+    
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        session_id: getSessionId(),
+        event_type: eventType,
+        ...data
+      })
+    });
+    
+    if (!response.ok) {
+      console.warn('Error enviando métrica:', response.status);
+    }
+  } catch (error) {
+    console.warn('Error tracking event:', error);
+  }
+};
+
+// Función para registrar tiempo de carga
+const trackLoadTime = async (loadTimeMs, queryText) => {
+  try {
+    console.log('trackLoadTime llamado con:', loadTimeMs, 'ms,', queryText);
+    const { API_URLS } = await import('./config');
+    console.log('URL para logLoadTime:', API_URLS.logLoadTime);
+    
+    const sessionId = getSessionId();
+    const requestBody = {
+      session_id: sessionId,
+      event_type: 'load_time',
+      prompt_text: queryText,
+      load_time_ms: loadTimeMs
+    };
+    console.log('Enviando datos:', JSON.stringify(requestBody));
+    
+    const response = await fetch(API_URLS.logLoadTime, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
+    });
+    
+    if (!response.ok) {
+      console.warn('Error registrando tiempo de carga:', response.status);
+      const errorText = await response.text();
+      console.warn('Detalles del error:', errorText);
+    } else {
+      console.log(`Tiempo de carga registrado: ${loadTimeMs}ms (${(loadTimeMs/1000).toFixed(2)}s)`);
+      const responseData = await response.json();
+      console.log('Respuesta del servidor:', responseData);
+    }
+  } catch (error) {
+    console.warn('Error tracking load time:', error);
+  }
+};
+
 // Fondo decorativo estático con chicas anime (usando imágenes locales)
 const backgroundGirls = [
   '/images/E2d2giGWQAMr6dx.jpg',
@@ -28,6 +107,8 @@ function App() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [debugMode, setDebugMode] = useState(false);
+  const [showMetrics, setShowMetrics] = useState(false);
+  const [metrics, setMetrics] = useState(null);
   
   // Function to generate AnimeFlv URL based on anime name
   const getAnimeFlvUrl = (animeName) => {
@@ -70,46 +151,69 @@ function App() {
     console.log("Estructura de datos del anime:", anime);
     return anime;
   };
-  
-  // Handler for suggestion button clicks
+    // Handler for suggestion button clicks
   const handleSuggestionClick = async (suggestion) => {
     if (suggestion && suggestion.trim()) {
       try {
         setIsLoading(true);
         
+        // Track search event
+        await trackEvent('search', { prompt_text: suggestion });
+        
         // Importamos dinámicamente la configuración de API
         const { API_URLS } = await import('./config');
         
-        // Use the suggestion directly without checking prompt state
-        const response = await fetch(API_URLS.recommend(suggestion, 100));
-        const data = await response.json();
+        // Medición del tiempo de carga
+        const startTime = performance.now();
+        let loadTime;
+        let data = null;
         
-        if (data && data.recommendations && data.recommendations.length > 0) {
-          // Mostrar estructura en modo debug
-          if (debugMode) {
-            console.log("Estructura de datos recibida:", data.recommendations[0]);
+        try {
+          // Use the suggestion directly without checking prompt state
+          const response = await fetch(API_URLS.recommend(suggestion, 100));
+          data = await response.json();
+          
+          // Calcular tiempo de carga
+          const endTime = performance.now();
+          loadTime = Math.round(endTime - startTime);
+          
+          if (data && data.recommendations && data.recommendations.length > 0) {
+            // Mostrar estructura en modo debug
+            if (debugMode) {
+              console.log("Estructura de datos recibida:", data.recommendations[0]);
+            }
+            
+            // Save results to localStorage for persistence
+            localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
+            localStorage.setItem("lastAnimePrompt", suggestion);
+            
+            // Guardar solo el array de recomendaciones
+            setAnimes(data.recommendations);
+          } else {
+            // Si no hay resultados, mostrar un mensaje
+            alert("No se encontraron animes que coincidan con tu búsqueda");
           }
-          
-          // Save results to localStorage for persistence
-          localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
-          localStorage.setItem("lastAnimePrompt", suggestion);
-          
-          // Guardar solo el array de recomendaciones
-          setAnimes(data.recommendations);
-        } else {
-          // Si no hay resultados, mostrar un mensaje
-          alert("No se encontraron animes que coincidan con tu búsqueda");
+        } catch (apiError) {
+          console.error("Error al obtener recomendaciones:", apiError);
+          alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
+          loadTime = Math.round(performance.now() - startTime); // Aún registramos el tiempo aunque haya error
         }
-      } catch (error) {
-        console.error("Error al obtener recomendaciones:", error);
-        alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
+        
+        // Registrar tiempo de carga
+        if (loadTime) {
+          console.log('Intentando registrar tiempo de carga:', loadTime, 'ms para prompt:', suggestion);
+          try {
+            await trackLoadTime(loadTime, suggestion);
+            console.log('Tiempo de carga registrado exitosamente');
+          } catch (logError) {
+            console.error('Error al registrar tiempo de carga:', logError);
+          }
+        }
       } finally {
         setIsLoading(false);
       }
     }
-  };
-  
-  // Fetch recommendations from backend  
+  };  // Fetch recommendations from backend  
   const fetchRecommendations = async () => {
     try {
       // Solo realizar búsqueda si hay texto en el prompt
@@ -120,40 +224,74 @@ function App() {
       
       setIsLoading(true);
       
+      // Track search event
+      await trackEvent('search', { prompt_text: prompt });
+      
       // Importamos dinámicamente la configuración de API
       const { API_URLS } = await import('./config');
       
-      // Always fetch top 100 recommendations using config.js
-      const response = await fetch(API_URLS.recommend(prompt, 100));
-      const data = await response.json();
+      // Medición del tiempo de carga
+      const startTime = performance.now();
+      let loadTime;
+      let data = null;
       
-      if (data && data.recommendations && data.recommendations.length > 0) {
-        // Mostrar estructura en modo debug
-        if (debugMode) {
-          console.log("Estructura de datos recibida:", data.recommendations[0]);
+      try {
+        // Always fetch top 100 recommendations using config.js
+        const response = await fetch(API_URLS.recommend(prompt, 100));
+        data = await response.json();
+          
+        // Calcular tiempo de carga
+        const endTime = performance.now();
+        loadTime = Math.round(endTime - startTime);
+        
+        // Procesar los datos recibidos
+        if (data && data.recommendations && data.recommendations.length > 0) {
+          // Guardar resultados y actualizar UI
+          if (debugMode) {
+            console.log("Estructura de datos recibida:", data.recommendations[0]);
+          }
+          
+          localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
+          localStorage.setItem("lastAnimePrompt", prompt);
+          setAnimes(data.recommendations);
+          
+          if (data.keyphrases) {
+            console.log("Keyphrases extraídas:", data.keyphrases);
+          }
+        } else {
+          alert("No se encontraron animes que coincidan con tu búsqueda");
         }
-        
-        // Save results to localStorage for persistence
-        localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
-        localStorage.setItem("lastAnimePrompt", prompt);
-        
-        // Guardar solo el array de recomendaciones
-        setAnimes(data.recommendations);
-        
-        console.log("Keyphrases extraídas:", data.keyphrases);
-      } else {
-        // Si no hay resultados, mostrar un mensaje
-        alert("No se encontraron animes que coincidan con tu búsqueda");
+      } catch (apiError) {
+        console.error("Error al obtener recomendaciones:", apiError);
+        alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
+        loadTime = Math.round(performance.now() - startTime); // Aún registramos el tiempo aunque haya error
+      } 
+      
+      // Registrar tiempo de carga fuera del try/catch del API para que se ejecute siempre
+      if (loadTime) {  // Solo si se pudo medir el tiempo
+        console.log('Intentando registrar tiempo de carga:', loadTime, 'ms para prompt:', prompt);
+        try {
+          await trackLoadTime(loadTime, prompt);
+          console.log('Tiempo de carga registrado exitosamente');
+        } catch (logError) {
+          console.error('Error al registrar tiempo de carga:', logError);
+        }
       }
-    } catch (error) {
-      console.error("Error al obtener recomendaciones:", error);
-      alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleCardClick = idx => {
+    // Track click event
+    const anime = animes[idx];
+    const animeName = getAnimeField(anime, 'name');
+    const animeId = getAnimeField(anime, 'anime_id');
+    
+    trackEvent('click', { 
+      anime_clicked: animeName,
+      anime_id: animeId 
+    });
+    
     setSelectedAnime(idx);
     setModalOpen(true);
   };
@@ -162,15 +300,34 @@ function App() {
     setModalOpen(false);
     setSelectedAnime(null);
   };
-  
-  const handleConfirm = () => {
+    const handleConfirm = async () => {
     if (selectedAnime !== null) {
-      // Navigate to AnimeFlv search for this anime
       const anime = animes[selectedAnime];
       const name = getAnimeField(anime, 'name');
+      const animeId = getAnimeField(anime, 'anime_id');
+      
+      // Track click event
+      await trackEvent('click', { 
+        anime_clicked: name,
+        anime_id: animeId 
+      });
+      
+      // Navigate to AnimeFlv search for this anime
       window.open(getAnimeFlvUrl(name), '_blank');
     }
     handleModalClose();
+  };
+
+  // Función para obtener métricas
+  const fetchMetrics = async () => {
+    try {
+      const { API_URLS } = await import('./config');
+      const response = await fetch(API_URLS.getMetrics(7)); // Últimos 7 días
+      const data = await response.json();
+      setMetrics(data);
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
+    }
   };
 
   return (
@@ -747,7 +904,7 @@ function App() {
           </div>
         )}
         
-        {/* Toggle Debug Mode - Solo visible en desarrollo */}
+        {/* Debug Mode Toggle */}
         {process.env.NODE_ENV !== 'production' && (
           <div style={{
             position: 'fixed',
@@ -756,7 +913,10 @@ function App() {
             background: 'rgba(0,0,0,0.6)',
             padding: '5px 10px',
             borderRadius: '4px',
-            fontSize: '0.8rem'
+            fontSize: '0.8rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '5px'
           }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
               <input 
@@ -766,6 +926,95 @@ function App() {
               />
               Debug Mode
             </label>
+            
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+              <input 
+                type="checkbox" 
+                checked={showMetrics}
+                onChange={(e) => {
+                  setShowMetrics(e.target.checked);
+                  if (e.target.checked) fetchMetrics();
+                }}
+              />
+              Show Metrics
+            </label>
+          </div>
+        )}
+
+        {/* Panel de Métricas */}
+        {showMetrics && metrics && (
+          <div style={{
+            position: 'fixed',
+            top: 20,
+            right: 20,
+            background: 'rgba(0,0,0,0.9)',
+            padding: '15px',
+            borderRadius: '8px',
+            color: '#fff',
+            fontSize: '0.9rem',
+            minWidth: '250px',
+            zIndex: 50
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+              <h3 style={{ margin: 0, color: '#61dafb' }}>Métricas (7 días)</h3>
+              <button 
+                onClick={() => setShowMetrics(false)}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: '#999', 
+                  cursor: 'pointer',
+                  fontSize: '1.2rem'
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {metrics.metrics && metrics.metrics.length > 0 ? (
+              <div>                {metrics.metrics.slice(0, 5).map((day, idx) => (
+                  <div key={idx} style={{ 
+                    marginBottom: '8px', 
+                    padding: '8px', 
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '4px'
+                  }}>
+                    <div style={{ fontWeight: 'bold' }}>{day.date}</div>
+                    <div>Búsquedas: {day.searches}</div>
+                    <div>Clics: {day.clicks}</div>
+                    <div style={{ color: day.conversion_rate > 0 ? '#7df740' : '#ffd700' }}>
+                      Conversión: {day.conversion_rate}%
+                    </div>
+                    <div style={{ 
+                      color: day.avg_load_time_sec < 1 ? '#7df740' : day.avg_load_time_sec < 3 ? '#ffd700' : '#ff6b6b',
+                      borderTop: '1px solid rgba(255,255,255,0.1)',
+                      marginTop: '5px',
+                      paddingTop: '5px'
+                    }}>
+                      Tiempo de carga: {day.avg_load_time_sec || 'N/A'} s
+                    </div>
+                  </div>
+                ))}
+                
+                <button 
+                  onClick={fetchMetrics}
+                  style={{
+                    background: '#61dafb',
+                    color: '#000',
+                    border: 'none',
+                    padding: '5px 10px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.8rem',
+                    marginTop: '10px'
+                  }}
+                >
+                  Actualizar
+                </button>
+              </div>
+            ) : (
+              <div>No hay datos disponibles</div>
+            )}
           </div>
         )}
       </div>

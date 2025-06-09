@@ -1,6 +1,7 @@
 
 ver base de disastrous
-url: http://localhost:8080/?pgsql=postgres&username=anime_db&db=animes&ns=public&select=anime
+url:
+http://localhost:8080/?pgsql=postgres&username=anime_db&db=animes&ns=public&select=anime
 
 
 para probar la api por ejemplo
