@@ -1,32 +1,31 @@
 import { useState } from 'react'
-import './App.css'
 
-// Importar componentes
+// Importar estilos
+import './App.css'
+import './styles/App.css'
+
+// Importar componentes UI
 import { AnimeCard, getAnimeField } from './components/AnimeCard'
 import AnimeModal from './components/AnimeModal'
 import MetricsPanel from './components/MetricsPanel'
+import { BackgroundDecorator, LoadingIndicator, WelcomeScreen } from './components/UIElements'
+import { SearchBar, DebugControls } from './components/Controls'
 
 // Importar utilidades
 import { trackEvent } from './utils/tracking'
 import useAnimeSearch from './utils/useAnimeSearch'
 
-// Imágenes decorativas de fondo (chicas anime)
-const backgroundGirls = [
-  '/images/E2d2giGWQAMr6dx.jpg',
-  '/images/Episodio_10_-_33.webp',
-  '/images/Zerotwomain.webp',
-];
-const centralImage = '/images/Mayoi_Owari3.webp';
-
 /**
  * Componente principal de la aplicación
  * Smart Anime Recommender (S.A.R.)
+ * 
+ * Actúa como orquestador principal para todos los componentes de la aplicación
  */
 function App() {  
   // Usar nuestro hook personalizado de búsqueda de anime
   const { animes, prompt, setPrompt, isLoading, searchAnime, clearSearch } = useAnimeSearch();
   
-  // Otros estados
+  // Estados para la interfaz de usuario
   const [top, setTop] = useState("top 5"); // Número de resultados a mostrar
   const [modalOpen, setModalOpen] = useState(false); // Control del modal
   const [selectedAnime, setSelectedAnime] = useState(null); // Anime seleccionado
@@ -117,212 +116,46 @@ function App() {
     }
   };
 
-  return (
-    <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden', width: '1200px' }}>
-      {/* Fondo decorativo chicas anime */}
-      <div style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 0,
-        pointerEvents: 'none',
-        width: '100vw',
-        height: '100vh',
-        overflow: 'hidden',
-      }}>
-        {/* Imágenes laterales */}
-        {backgroundGirls.map((url, idx) => (
-          <img
-            key={idx}
-            src={url}
-            alt="chica anime decorativa"
-            style={{
-              position: 'absolute',
-              left: `${10 + idx * 40}%`,
-              bottom: idx % 2 === 0 ? '0' : '10%',
-              width: '320px',
-              opacity: 0.13,
-              filter: 'blur(2px) grayscale(0.2)',
-              zIndex: 0,
-              userSelect: 'none',
-            }}
-          />
-        ))}
-        {/* Imagen central superior */}
-        <img
-          src={centralImage}
-          alt="chica anime central"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            width: '50vw',
-            maxWidth: '700px',
-            opacity: 0.13,
-            filter: 'blur(2px) grayscale(0.2)',
-            zIndex: 0,
-            userSelect: 'none',
-          }}
+  /**
+   * Maneja el cambio en el toggle de métricas
+   */
+  const handleMetricsToggle = (e) => {
+    const newValue = e.target.checked;
+    setShowMetrics(newValue);
+    if (newValue) fetchMetrics();
+  };  return (
+    <div className="app-container">
+      {/* Fondo decorativo */}
+      <BackgroundDecorator />
+      
+      {/* Contenido principal */}
+      <div className="main-content">
+        <h1>Smart Anime Recommender</h1>
+        
+        {/* Barra de búsqueda y controles */}
+        <SearchBar 
+          prompt={prompt}
+          setPrompt={setPrompt}
+          isLoading={isLoading}
+          onSearch={searchAnime}
+          top={top}
+          setTop={setTop}
+          hasResults={animes.length > 0}
+          onClear={clearSearch}
         />
-      </div>      {/* Contenido principal */}
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: '1800px', margin: '0 auto', width: '90%', padding: '0 20px' }}>        <h1>Smart Anime Recommender</h1>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>          <textarea
-            value={prompt}
-            onChange={e => setPrompt(e.target.value)}
-            placeholder="Write your prompt or anime search keywords here..."
-            style={{
-              width: '80%',
-              height: '80px',
-              fontSize: '1.3rem',
-              padding: '1rem',
-              borderRadius: '10px',
-              border: '2px solid #61dafb',
-              resize: 'none',
-              boxSizing: 'border-box',
-              outline: 'none',
-              fontWeight: 'bold',
-              overflow: 'auto',
-              display: 'block',
-              maxHeight: '80px'
-            }}
-          />          <button
-            onClick={() => searchAnime(prompt)}
-            disabled={isLoading}
-            style={{
-              height: '80px',
-              padding: '0 2rem',
-              fontSize: '1.1rem',
-              fontWeight: 'bold',
-              background: '#61dafb',
-              color: '#222',
-              border: 'none',
-              borderRadius: '10px',
-              cursor: isLoading ? 'wait' : 'pointer',
-              marginLeft: '0.5rem',
-              whiteSpace: 'nowrap',
-              opacity: isLoading ? 0.7 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              minWidth: '180px',
-              transition: 'all 0.3s'
-            }}
-          >            {isLoading ? (
-              <>
-                <div className="loading-spinner"></div>
-                Searching...
-              </>            ) : 'Recommend'}
-          </button>
-        </div>        <div style={{ marginBottom: '2rem', textAlign: 'left', display: 'flex', alignItems: 'center' }}>
-          <label htmlFor="top-select" style={{ fontWeight: 'bold', marginRight: '0.5rem' }}>Show:</label>
-          <select
-            id="top-select"
-            value={top}
-            onChange={e => setTop(e.target.value)}
-            style={{
-              fontSize: '1.1rem',
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              border: '1.5px solid #61dafb',
-              outline: 'none',
-              fontWeight: 'bold',
-            }}
-          >
-            <option value="top 5">Top 5</option>
-            <option value="top 10">Top 10</option>
-            <option value="top 20">Top 20</option>
-            <option value="top 50">Top 50</option>
-            <option value="top 100">Top 100</option>
-          </select>
-          
-          {animes.length > 0 && (
-            <button              onClick={clearSearch}
-              style={{
-                marginLeft: 'auto',
-                background: 'rgba(255, 100, 100, 0.2)',
-                color: '#ff6b6b',
-                border: '1px solid #ff6b6b',
-                borderRadius: '8px',
-                padding: '0.5rem 1rem',
-                fontSize: '0.9rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px'
-              }}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-              </svg>
-              New Search
-            </button>
-          )}
-        </div>{isLoading && (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '3rem'
-          }}>
-            <img 
-              src="/images/inugami-korone-hololive.gif" 
-              alt="Korone loading animation" 
-              style={{ 
-                width: '200px', 
-                marginTop: '1.5rem',
-                borderRadius: '12px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-              }} 
-            />            <p style={{ marginTop: '1rem', fontSize: '1.2rem', color: '#61dafb' }}>
-              Finding the best anime for you...
-            </p>
-          </div>
-        )}        {!isLoading && animes.length === 0 && (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '2rem',
-            background: 'rgba(30, 30, 50, 0.5)',
-            borderRadius: '12px',
-            backdropFilter: 'blur(5px)',
-            marginTop: '2rem'
-          }}>
-            <h2 style={{ color: '#61dafb', marginBottom: '1rem' }}>¡Welcome to S.A.R dear friend!</h2>
-            <p style={{ fontSize: '1.1rem', lineHeight: '1.5', maxWidth: '600px', margin: '0 auto' }}>
-              Enter keywords related to the type of anime you would like to watch.
-              <br />For example, try genres such as “romance comedy”, “action adventure”, 
-              or even specific themes such as “cyberpunk dystopia”..
-            </p>
-            <div style={{
-              marginTop: '2rem',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '1rem',
-              flexWrap: 'wrap'
-            }}>              {["romance comedy", "action adventure", "sports", "fantasy magic", "slice of life", "psychological drama"].map(suggestion => (
-                <button 
-                  key={suggestion}                  onClick={() => handleSuggestionClick(suggestion)}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: '#333',
-                    color: '#fff',
-                    border: '1px solid #61dafb',
-                    borderRadius: '20px',
-                    cursor: 'pointer',
-                    fontSize: '0.9rem'
-                  }}
-                >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          </div>
+        
+        {/* Indicador de carga */}
+        {isLoading && <LoadingIndicator />}
+        
+        {/* Pantalla de bienvenida (cuando no hay resultados ni está cargando) */}
+        {!isLoading && animes.length === 0 && (
+          <WelcomeScreen onSuggestionClick={handleSuggestionClick} />
         )}
         
+        {/* Lista de animes recomendados */}
         {!isLoading && animes.length > 0 && (
-          <ul style={{ listStyle: 'none', padding: 0 }}>            {animes.slice(0, getTopN()).map((anime, idx) => (
+          <ul className="anime-list">
+            {animes.slice(0, getTopN()).map((anime, idx) => (
               <AnimeCard
                 key={idx}
                 anime={anime}
@@ -334,7 +167,7 @@ function App() {
           </ul>
         )}
         
-        {/* Anime confirmation modal */}
+        {/* Modal de confirmación de anime */}
         {modalOpen && selectedAnime !== null && (
           <AnimeModal
             anime={animes[selectedAnime]}
@@ -344,44 +177,15 @@ function App() {
           />
         )}
         
-        {/* Debug Mode Toggle */}
-        {process.env.NODE_ENV !== 'production' && (
-          <div style={{
-            position: 'fixed',
-            right: 10,
-            bottom: 10,
-            background: 'rgba(0,0,0,0.6)',
-            padding: '5px 10px',
-            borderRadius: '4px',
-            fontSize: '0.8rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '5px'
-          }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input 
-                type="checkbox" 
-                checked={debugMode}
-                onChange={() => setDebugMode(!debugMode)}
-              />
-              Debug Mode
-            </label>
-            
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
-              <input 
-                type="checkbox" 
-                checked={showMetrics}
-                onChange={(e) => {
-                  setShowMetrics(e.target.checked);
-                  if (e.target.checked) fetchMetrics();
-                }}
-              />
-              Show Metrics
-            </label>
-          </div>
-        )}
+        {/* Controles de depuración y métricas */}
+        <DebugControls 
+          debugMode={debugMode}
+          setDebugMode={setDebugMode}
+          showMetrics={showMetrics}
+          onMetricsToggle={handleMetricsToggle}
+        />
 
-        {/* Metrics Panel */}
+        {/* Panel de métricas */}
         {showMetrics && metrics && (
           <MetricsPanel 
             metrics={metrics}

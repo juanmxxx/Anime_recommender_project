@@ -4,6 +4,9 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? 'http://api:8000'  // URL dentro de Docker si también el frontend está en Docker
   : 'http://localhost:8000'; // URL para desarrollo local
 
+// Log para debug
+console.log('API_BASE_URL:', API_BASE_URL);
+
 export const API_URLS = {
   recommend: (keywords, topN) => 
     `${API_BASE_URL}/recommend?keywords=${encodeURIComponent(keywords)}&top_n=${topN}`,
