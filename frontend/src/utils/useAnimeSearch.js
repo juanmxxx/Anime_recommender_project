@@ -34,9 +34,10 @@ export const useAnimeSearch = () => {
    * Función para buscar animes según el prompt proporcionado
    * @param {string} searchPrompt - Texto de búsqueda para encontrar animes
    * @returns {Array|null} Arreglo de animes encontrados o null en caso de error
-   */
-  const searchAnime = async (searchPrompt) => {
+   */  const searchAnime = async (searchPrompt) => {
     try {
+      console.log('searchAnime called with prompt:', searchPrompt);
+      
       // Solo buscar si hay texto en el prompt
       if (!searchPrompt.trim()) {
         alert("Por favor ingresa una palabra clave para buscar animes");
@@ -44,33 +45,41 @@ export const useAnimeSearch = () => {
       }
       
       setIsLoading(true);
+      console.log('Loading state set to true');
       
       // Registrar evento de búsqueda
       await trackEvent('search', { prompt_text: searchPrompt });
+      console.log('Search event tracked');
       
       // Importar dinámicamente la configuración de API
       const { API_URLS } = await import('../config');
+      console.log('API URL for search:', API_URLS.recommend(searchPrompt, 100));
       
       // Medir tiempo de carga
       const startTime = performance.now();
       let loadTime;
       let data = null;
-      
-      try {
+        try {
         // Siempre obtener las 100 mejores recomendaciones usando config.js
+        console.log('Fetching recommendations...');
         const response = await fetch(API_URLS.recommend(searchPrompt, 100));
+        console.log('API Response status:', response.status);
         data = await response.json();
+        console.log('API Response data:', data);
           
         // Calcular tiempo de carga
         const endTime = performance.now();
         loadTime = Math.round(endTime - startTime);
+        console.log('Load time:', loadTime, 'ms');
         
         // Procesar datos recibidos
         if (data && data.recommendations && data.recommendations.length > 0) {
+          console.log('Recommendations found:', data.recommendations.length);
           // Guardar resultados en localStorage para persistencia
           localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
           localStorage.setItem("lastAnimePrompt", searchPrompt);
           setAnimes(data.recommendations);
+          console.log('State updated with recommendations');
           
           if (data.keyphrases) {
             console.log("Keyphrases extraídas:", data.keyphrases);
@@ -79,6 +88,7 @@ export const useAnimeSearch = () => {
           setPrompt(searchPrompt);
           return data.recommendations;
         } else {
+          console.warn('No recommendations found in API response');
           alert("No se encontraron animes que coincidan con tu búsqueda");
           return [];
         }
