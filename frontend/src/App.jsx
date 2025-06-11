@@ -1,89 +1,16 @@
-// filepath: c:\proyectoIA\frontend\src\App.jsx
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
-// Generar ID de sesión único
-const generateSessionId = () => {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-};
+// Importar componentes
+import { AnimeCard, getAnimeField } from './components/AnimeCard'
+import AnimeModal from './components/AnimeModal'
+import MetricsPanel from './components/MetricsPanel'
 
-// Obtener o crear session ID
-const getSessionId = () => {
-  let sessionId = sessionStorage.getItem('sar_session_id');
-  if (!sessionId) {
-    sessionId = generateSessionId();
-    sessionStorage.setItem('sar_session_id', sessionId);
-  }
-  return sessionId;
-};
+// Importar utilidades
+import { trackEvent } from './utils/tracking'
+import useAnimeSearch from './utils/useAnimeSearch'
 
-// Función para enviar métricas al backend
-const trackEvent = async (eventType, data = {}) => {
-  try {
-    const { API_URLS } = await import('./config');
-    const endpoint = eventType === 'search' ? API_URLS.logSearch : API_URLS.logClick;
-    
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        session_id: getSessionId(),
-        event_type: eventType,
-        ...data
-      })
-    });
-    
-    if (!response.ok) {
-      console.warn('Error enviando métrica:', response.status);
-    }
-  } catch (error) {
-    console.warn('Error tracking event:', error);
-  }
-};
-
-// Función para registrar tiempo de carga
-const trackLoadTime = async (loadTimeMs, queryText) => {
-  try {
-    console.log('trackLoadTime llamado con:', loadTimeMs, 'ms,', queryText);
-    const { API_URLS } = await import('./config');
-    console.log('URL para logLoadTime:', API_URLS.logLoadTime);
-    
-    const sessionId = getSessionId();
-    const requestBody = {
-      session_id: sessionId,
-      event_type: 'load_time',
-      prompt_text: queryText,
-      load_time_ms: loadTimeMs
-    };
-    console.log('Enviando datos:', JSON.stringify(requestBody));
-    
-    const response = await fetch(API_URLS.logLoadTime, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody)
-    });
-    
-    if (!response.ok) {
-      console.warn('Error registrando tiempo de carga:', response.status);
-      const errorText = await response.text();
-      console.warn('Detalles del error:', errorText);
-    } else {
-      console.log(`Tiempo de carga registrado: ${loadTimeMs}ms (${(loadTimeMs/1000).toFixed(2)}s)`);
-      const responseData = await response.json();
-      console.log('Respuesta del servidor:', responseData);
-    }
-  } catch (error) {
-    console.warn('Error tracking load time:', error);
-  }
-};
-
-// Fondo decorativo estático con chicas anime (usando imágenes locales)
+// Imágenes decorativas de fondo (chicas anime)
 const backgroundGirls = [
   '/images/E2d2giGWQAMr6dx.jpg',
   '/images/Episodio_10_-_33.webp',
@@ -91,198 +18,47 @@ const backgroundGirls = [
 ];
 const centralImage = '/images/Mayoi_Owari3.webp';
 
+/**
+ * Componente principal de la aplicación
+ * Smart Anime Recommender (S.A.R.)
+ */
 function App() {  
-  // Initialize state with localStorage values if they exist, otherwise empty values
-  const [prompt, setPrompt] = useState(() => {
-    const savedPrompt = localStorage.getItem("lastAnimePrompt");
-    return savedPrompt || "";
-  });
-  const [top, setTop] = useState("top 5");
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedAnime, setSelectedAnime] = useState(null);
-  const [animes, setAnimes] = useState(() => {
-    // Intentar recuperar resultados previos del localStorage
-    const savedResults = localStorage.getItem("lastAnimeResults");
-    return savedResults ? JSON.parse(savedResults) : [];
-  });
-  const [isLoading, setIsLoading] = useState(false);
-  const [debugMode, setDebugMode] = useState(false);
-  const [showMetrics, setShowMetrics] = useState(false);
-  const [metrics, setMetrics] = useState(null);
+  // Usar nuestro hook personalizado de búsqueda de anime
+  const { animes, prompt, setPrompt, isLoading, searchAnime, clearSearch } = useAnimeSearch();
   
-  // Function to generate AnimeFlv URL based on anime name
-  const getAnimeFlvUrl = (animeName) => {
-    if (!animeName) return "#";
-    // Format the name for a URL: lowercase, replace spaces with dashes, remove special chars
-    const formattedName = animeName
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '') // Remove special characters
-      .replace(/\s+/g, '-')     // Replace spaces with dashes
-      .trim();
-    return `https://www3.animeflv.net/browse?q=${encodeURIComponent(animeName)}`;
-  };
+  // Otros estados
+  const [top, setTop] = useState("top 5"); // Número de resultados a mostrar
+  const [modalOpen, setModalOpen] = useState(false); // Control del modal
+  const [selectedAnime, setSelectedAnime] = useState(null); // Anime seleccionado
+  const [debugMode, setDebugMode] = useState(false); // Modo de depuración
+  const [showMetrics, setShowMetrics] = useState(false); // Mostrar panel de métricas
+  const [metrics, setMetrics] = useState(null); // Datos de métricas
   
-  // Function to get numerical value from top selection
+  /**
+   * Obtiene el valor numérico de la selección "top N"
+   * @returns {number} Número de animes a mostrar
+   */
   const getTopN = () => {
-    // Extract the number from strings like "top 5", "top 10", etc.
     return parseInt(top.split(' ')[1]);
   };
-  
-  // Función para normalizar el acceso a los campos del anime (independiente del case)
-  const getAnimeField = (anime, fieldName) => {
-    // Buscar el campo en diferentes formatos (camelCase, PascalCase)
-    const possibleNames = [
-      fieldName.toLowerCase(),  // genres
-      fieldName,                // genres (como está)
-      fieldName.charAt(0).toUpperCase() + fieldName.slice(1), // Genres
-    ];
     
-    // Devolver el primer campo que exista
-    for (const name of possibleNames) {
-      if (anime[name] !== undefined) {
-        return anime[name];
-      }
-    }
-    
-    return null; // No se encontró el campo
-  };
-    // Debug function to log anime data structure
-  const debugAnimeData = (anime) => {
-    console.log("Estructura de datos del anime:", anime);
-    return anime;
-  };
-    // Handler for suggestion button clicks
+  /**
+   * Manejador para clics en botones de sugerencia
+   * @param {string} suggestion - Texto de sugerencia a buscar
+   */
   const handleSuggestionClick = async (suggestion) => {
     if (suggestion && suggestion.trim()) {
-      try {
-        setIsLoading(true);
-        
-        // Track search event
-        await trackEvent('search', { prompt_text: suggestion });
-        
-        // Importamos dinámicamente la configuración de API
-        const { API_URLS } = await import('./config');
-        
-        // Medición del tiempo de carga
-        const startTime = performance.now();
-        let loadTime;
-        let data = null;
-        
-        try {
-          // Use the suggestion directly without checking prompt state
-          const response = await fetch(API_URLS.recommend(suggestion, 100));
-          data = await response.json();
-          
-          // Calcular tiempo de carga
-          const endTime = performance.now();
-          loadTime = Math.round(endTime - startTime);
-          
-          if (data && data.recommendations && data.recommendations.length > 0) {
-            // Mostrar estructura en modo debug
-            if (debugMode) {
-              console.log("Estructura de datos recibida:", data.recommendations[0]);
-            }
-            
-            // Save results to localStorage for persistence
-            localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
-            localStorage.setItem("lastAnimePrompt", suggestion);
-            
-            // Guardar solo el array de recomendaciones
-            setAnimes(data.recommendations);
-          } else {
-            // Si no hay resultados, mostrar un mensaje
-            alert("No se encontraron animes que coincidan con tu búsqueda");
-          }
-        } catch (apiError) {
-          console.error("Error al obtener recomendaciones:", apiError);
-          alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
-          loadTime = Math.round(performance.now() - startTime); // Aún registramos el tiempo aunque haya error
-        }
-        
-        // Registrar tiempo de carga
-        if (loadTime) {
-          console.log('Intentando registrar tiempo de carga:', loadTime, 'ms para prompt:', suggestion);
-          try {
-            await trackLoadTime(loadTime, suggestion);
-            console.log('Tiempo de carga registrado exitosamente');
-          } catch (logError) {
-            console.error('Error al registrar tiempo de carga:', logError);
-          }
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    }
-  };  // Fetch recommendations from backend  
-  const fetchRecommendations = async () => {
-    try {
-      // Solo realizar búsqueda si hay texto en el prompt
-      if (!prompt.trim()) {
-        alert("Por favor ingresa una palabra clave para buscar animes");
-        return;
-      }
-      
-      setIsLoading(true);
-      
-      // Track search event
-      await trackEvent('search', { prompt_text: prompt });
-      
-      // Importamos dinámicamente la configuración de API
-      const { API_URLS } = await import('./config');
-      
-      // Medición del tiempo de carga
-      const startTime = performance.now();
-      let loadTime;
-      let data = null;
-      
-      try {
-        // Always fetch top 100 recommendations using config.js
-        const response = await fetch(API_URLS.recommend(prompt, 100));
-        data = await response.json();
-          
-        // Calcular tiempo de carga
-        const endTime = performance.now();
-        loadTime = Math.round(endTime - startTime);
-        
-        // Procesar los datos recibidos
-        if (data && data.recommendations && data.recommendations.length > 0) {
-          // Guardar resultados y actualizar UI
-          if (debugMode) {
-            console.log("Estructura de datos recibida:", data.recommendations[0]);
-          }
-          
-          localStorage.setItem("lastAnimeResults", JSON.stringify(data.recommendations));
-          localStorage.setItem("lastAnimePrompt", prompt);
-          setAnimes(data.recommendations);
-          
-          if (data.keyphrases) {
-            console.log("Keyphrases extraídas:", data.keyphrases);
-          }
-        } else {
-          alert("No se encontraron animes que coincidan con tu búsqueda");
-        }
-      } catch (apiError) {
-        console.error("Error al obtener recomendaciones:", apiError);
-        alert("Ocurrió un error al buscar recomendaciones. Por favor intenta de nuevo.");
-        loadTime = Math.round(performance.now() - startTime); // Aún registramos el tiempo aunque haya error
-      } 
-      
-      // Registrar tiempo de carga fuera del try/catch del API para que se ejecute siempre
-      if (loadTime) {  // Solo si se pudo medir el tiempo
-        console.log('Intentando registrar tiempo de carga:', loadTime, 'ms para prompt:', prompt);
-        try {
-          await trackLoadTime(loadTime, prompt);
-          console.log('Tiempo de carga registrado exitosamente');
-        } catch (logError) {
-          console.error('Error al registrar tiempo de carga:', logError);
-        }
-      }
-    } finally {
-      setIsLoading(false);
+      setPrompt(suggestion); // Actualizar el campo de entrada
+      await searchAnime(suggestion); // Buscar con el prompt sugerido
     }
   };
+  
+  /**
+   * Manejador para clics en tarjetas de anime
+   * @param {number} idx - Índice del anime seleccionado
+   */
   const handleCardClick = idx => {
-    // Track click event
+    // Registrar evento de clic
     const anime = animes[idx];
     const animeName = getAnimeField(anime, 'name');
     const animeId = getAnimeField(anime, 'anime_id');
@@ -296,29 +72,40 @@ function App() {
     setModalOpen(true);
   };
 
+  /**
+   * Cierra el modal de confirmación
+   */
   const handleModalClose = () => {
     setModalOpen(false);
     setSelectedAnime(null);
   };
-    const handleConfirm = async () => {
+  
+  /**
+   * Maneja la confirmación para ver un anime
+   * Abre una nueva pestaña con la URL de AnimeFlv
+   */
+  const handleConfirm = async () => {
     if (selectedAnime !== null) {
       const anime = animes[selectedAnime];
       const name = getAnimeField(anime, 'name');
       const animeId = getAnimeField(anime, 'anime_id');
       
-      // Track click event
+      // Registrar evento de clic
       await trackEvent('click', { 
         anime_clicked: name,
         anime_id: animeId 
       });
       
-      // Navigate to AnimeFlv search for this anime
-      window.open(getAnimeFlvUrl(name), '_blank');
+      // Obtener URL de AnimeFlv y abrir en nueva pestaña
+      const animeFlvUrl = `https://www3.animeflv.net/browse?q=${encodeURIComponent(name)}`;
+      window.open(animeFlvUrl, '_blank');
     }
     handleModalClose();
   };
 
-  // Función para obtener métricas
+  /**
+   * Obtiene métricas de uso del backend
+   */
   const fetchMetrics = async () => {
     try {
       const { API_URLS } = await import('./config');
@@ -399,7 +186,7 @@ function App() {
               maxHeight: '80px'
             }}
           />          <button
-            onClick={fetchRecommendations}
+            onClick={() => searchAnime(prompt)}
             disabled={isLoading}
             style={{
               height: '80px',
@@ -450,14 +237,7 @@ function App() {
           </select>
           
           {animes.length > 0 && (
-            <button
-              onClick={() => {
-                // Limpiar resultados y localStorage
-                setAnimes([]);
-                setPrompt("");
-                localStorage.removeItem("lastAnimeResults");
-                localStorage.removeItem("lastAnimePrompt");
-              }}
+            <button              onClick={clearSearch}
               style={{
                 marginLeft: 'auto',
                 background: 'rgba(255, 100, 100, 0.2)',
@@ -523,13 +303,7 @@ function App() {
               flexWrap: 'wrap'
             }}>              {["romance comedy", "action adventure", "sports", "fantasy magic", "slice of life", "psychological drama"].map(suggestion => (
                 <button 
-                  key={suggestion}
-                  onClick={() => {
-                    setPrompt(suggestion);
-                    // Ejecutamos la búsqueda inmediatamente con el valor de sugerencia
-                    // en lugar de esperar a que se actualice el estado
-                    handleSuggestionClick(suggestion);
-                  }}
+                  key={suggestion}                  onClick={() => handleSuggestionClick(suggestion)}
                   style={{
                     padding: '0.5rem 1rem',
                     background: '#333',
@@ -548,360 +322,26 @@ function App() {
         )}
         
         {!isLoading && animes.length > 0 && (
-          <ul style={{ listStyle: 'none', padding: 0 }}>
-            {animes.slice(0, getTopN()).map((anime, idx) => (
-              <li
+          <ul style={{ listStyle: 'none', padding: 0 }}>            {animes.slice(0, getTopN()).map((anime, idx) => (
+              <AnimeCard
                 key={idx}
-                onClick={() => handleCardClick(idx)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '1.5rem',
-                  marginBottom: '2rem',
-                  background: '#222',
-                  borderRadius: '12px',
-                  padding: '1.5rem',
-                  boxShadow: '0 2px 8px #0002',
-                  cursor: 'pointer',
-                  transition: 'box-shadow 0.2s',
-                  minHeight: '260px',
-                  position: 'relative'
-                }}
-                title="Click to start this anime"
-              >
-                {/* Mostrar estructura en modo debug */}
-                {debugMode && (
-                  <div style={{
-                    position: 'absolute',
-                    top: 10,
-                    right: 10,
-                    background: 'rgba(0,0,0,0.7)',
-                    color: 'lime',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '0.7rem',
-                    cursor: 'pointer',
-                    zIndex: 10
-                  }} onClick={(e) => {
-                    e.stopPropagation();
-                    console.log("Datos del anime:", anime);
-                    alert("Datos mostrados en consola");
-                  }}>
-                    Ver datos
-                  </div>
-                )}
-                
-                {/* Imagen del anime */}
-                <img 
-                  src={getAnimeField(anime, "image_url")} 
-                  alt={getAnimeField(anime, "name")} 
-                  style={{ width: 120, borderRadius: 8 }} 
-                  onError={(e) => { e.target.src = '/images/defaultImagePortrait.jpg'; }}
-                />
-                
-                <div style={{ textAlign: 'left', width: '100%' }}>
-                  <h2 style={{ margin: '0 0 0.5rem 0' }}>{getAnimeField(anime, "name")}</h2>
-                  
-                  {/* Sinopsis */}
-                  <div style={{ 
-                    margin: '0 0 0.5rem 0', 
-                    color: '#bbb',
-                    maxHeight: '180px', /* Increased height */
-                    overflowY: 'auto',
-                    paddingRight: '10px',
-                    lineHeight: '1.5',
-                    fontSize: '0.95rem'
-                  }}>
-                    {(() => {
-                      const synopsis = getAnimeField(anime, "synopsis");
-                      if (!synopsis) return <p>No hay sinopsis disponible.</p>;
-                      
-                      return synopsis.split('. ')
-                        .filter(sentence => sentence.trim().length > 0)
-                        .reduce((result, sentence, index, array) => {
-                          // Group sentences in pairs (every 2 sentences)
-                          if (index % 2 === 0) {
-                            // If this is an even index and there's a next sentence, combine them
-                            const nextSentence = array[index + 1];
-                            const combinedText = nextSentence 
-                              ? `${sentence.trim()}. ${nextSentence.trim()}${nextSentence.trim().endsWith('.') ? '' : '.'}`
-                              : `${sentence.trim()}${sentence.trim().endsWith('.') ? '' : '.'}`;
-                            
-                            result.push(combinedText);
-                          }
-                          return result;
-                        }, [])
-                        .map((paragraph, i) => (
-                          <p key={i} style={{ 
-                            margin: '0 0 0.8rem 0',
-                            textAlign: 'justify'
-                          }}>
-                            {paragraph}
-                          </p>
-                        ))
-                    })()}
-                  </div>
-                  
-                  {/* Basic info: score and ranking */}
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <div style={{ fontWeight: 'bold', color: '#ffd700' }}>
-                      Score: {getAnimeField(anime, "score") || "N/A"}
-                    </div>
-                    <div style={{ color: '#61dafb' }}>
-                      Ranking #{getAnimeField(anime, "rank") || "?"}
-                    </div>
-                    {getAnimeField(anime, "recommendation_score") && (
-                      <div style={{ fontWeight: 'bold', color: '#7df740' }}>
-                        Match: {(getAnimeField(anime, "recommendation_score") * 100 * (-1)).toFixed(1)}%
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Línea separadora */}
-                  <div style={{ height: '1px', background: '#444', margin: '8px 0' }}></div>
-                  
-                  {/* Info adicional */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-                    {/* Tipo (TV/OVA/Movie) */}
-                    <div style={{ 
-                      background: '#333', 
-                      color: '#fff',
-                      padding: '4px 8px', 
-                      borderRadius: '4px',
-                      fontSize: '0.9rem',
-                      border: '1px solid #555'
-                    }}>
-                      {getAnimeField(anime, "type") || 'TV'}
-                    </div>
-                    
-                    {/* Año de lanzamiento */}
-                    {(() => {
-                      const aired = getAnimeField(anime, "aired");
-                      let year = null;
-                      
-                      if (aired) {
-                        const match = aired.toString().match(/\d{4}/);
-                        if (match) year = match[0];
-                      }
-                      
-                      return year ? (
-                        <div style={{ 
-                          background: '#2d4838', 
-                          color: '#a0e6b8',
-                          padding: '4px 8px', 
-                          borderRadius: '4px',
-                          fontSize: '0.9rem',
-                          border: '1px solid #365544'
-                        }}>
-                          {year}
-                        </div>
-                      ) : null;
-                    })()}
-                    
-                    {/* Estado (Airing/Finished) */}
-                    {(() => {
-                      const status = getAnimeField(anime, "status");
-                      const isAiring = status === 'Currently Airing' || status === 'Airing';
-                      
-                      return status ? (
-                        <div style={{ 
-                          background: isAiring ? '#9090c0' : '#2a2a3d', 
-                          color: isAiring ? '#1e1e36' : '#ffffff',
-                          padding: '4px 8px', 
-                          borderRadius: '4px',
-                          fontSize: '0.9rem',
-                          fontWeight: isAiring ? 'bold' : 'normal'
-                        }}>
-                          {status}
-                        </div>
-                      ) : null;
-                    })()}
-                    
-                    {/* Episodios */}
-                    {(() => {
-                      const episodes = getAnimeField(anime, "episodes");
-                      return episodes ? (
-                        <div style={{ 
-                          background: '#3d3d2a', 
-                          color: '#dfdfb0',
-                          padding: '4px 8px', 
-                          borderRadius: '4px',
-                          fontSize: '0.9rem',
-                        }}>
-                          {episodes} eps
-                        </div>
-                      ) : null;
-                    })()}
-                  </div>
-                  
-                  {/* Géneros */}
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-                    {(() => {
-                      const genres = getAnimeField(anime, "genres");
-                      
-                      if (!genres) {
-                        return <span style={{ color: '#888', fontSize: '0.9rem' }}>Sin información de géneros</span>;
-                      }
-                      
-                      let genreList = genres;
-                      if (typeof genres === 'string') {
-                        genreList = genres.split(',').map(g => g.trim());
-                      }
-                      
-                      if (!Array.isArray(genreList)) {
-                        return <span style={{ color: '#888', fontSize: '0.9rem' }}>Formato de géneros desconocido</span>;
-                      }
-                      
-                      return genreList.map((genre, i) => (
-                        <span key={i} style={{ 
-                          background: '#2a4555', 
-                          color: '#7edeff',
-                          padding: '3px 8px', 
-                          borderRadius: '12px',
-                          fontSize: '0.8rem',
-                        }}>
-                          {genre}
-                        </span>
-                      ));
-                    })()}
-                  </div>
-                </div>
-              </li>
+                anime={anime}
+                index={idx}
+                onClick={handleCardClick}
+                debugMode={debugMode}
+              />
             ))}
           </ul>
         )}
         
-        {/* Modal personalizado */}
+        {/* Anime confirmation modal */}
         {modalOpen && selectedAnime !== null && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(20, 24, 38, 0.75)',
-            zIndex: 100,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backdropFilter: 'blur(2px)'
-          }}>
-            <div style={{
-              background: '#23243a',
-              borderRadius: '18px',
-              padding: '2.5rem 2rem 2rem 2rem',
-              boxShadow: '0 8px 32px #0006',
-              minWidth: 320,
-              maxWidth: 380,
-              textAlign: 'center',
-              color: '#fff',
-              position: 'relative',
-            }}>
-              {/* Mostrar estructura de datos en modo debug */}
-              {debugMode && (
-                <div 
-                  style={{
-                    position: 'absolute',
-                    top: 10,
-                    right: 10,
-                    background: 'rgba(0,0,0,0.7)',
-                    color: 'lime',
-                    fontSize: '0.7rem',
-                    padding: '3px 6px',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => {
-                    console.log("Datos del anime modal:", animes[selectedAnime]);
-                    alert("Datos mostrados en consola");
-                  }}
-                >
-                  Debug
-                </div>
-              )}
-              
-              <img 
-                src={getAnimeField(animes[selectedAnime], "image_url")} 
-                alt={getAnimeField(animes[selectedAnime], "name")} 
-                style={{ width: 90, borderRadius: 12, marginBottom: 16, boxShadow: '0 2px 8px #0003' }} 
-                onError={(e) => { e.target.src = '/images/defaultImagePortrait.jpg'; }}
-              />
-              <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem', color: '#61dafb' }}>
-                {getAnimeField(animes[selectedAnime], "name")}
-              </h2>
-              
-              {(() => {
-                const aired = getAnimeField(animes[selectedAnime], "aired");
-                let year = null;
-                
-                if (aired) {
-                  const match = aired.toString().match(/\d{4}/);
-                  if (match) year = match[0];
-                }
-                
-                return year ? (
-                  <p style={{ 
-                    color: '#a0e6b8',
-                    fontSize: '0.9rem',
-                    margin: '0 0 12px 0',
-                    background: '#2d4838',
-                    display: 'inline-block',
-                    padding: '2px 8px',
-                    borderRadius: '4px'
-                  }}>
-                    {year}
-                  </p>
-                ) : null;
-              })()}
-              
-              <p style={{ color: '#bbb', marginBottom: 24 }}>¿Quieres ver este anime?</p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem' }}>
-                <button onClick={handleConfirm} style={{
-                  background: '#61dafb',
-                  color: '#23243a',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: 'bold',
-                  fontSize: '1.1rem',
-                  padding: '0.7rem 2.2rem',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s'
-                }}>
-                  Sí
-                </button>
-                <button onClick={handleModalClose} style={{
-                  background: '#444',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '1.1rem',
-                  padding: '0.7rem 1rem',
-                  cursor: 'pointer',
-                  transition: 'background 0.2s'
-                }}>
-                  No
-                </button>
-              </div>
-              
-              {/* Botón de cierre (X) */}
-              <button 
-                onClick={handleModalClose}
-                style={{
-                  position: 'absolute',
-                  top: 10,
-                  right: 10,
-                  background: 'none',
-                  border: 'none',
-                  color: '#999',
-                  fontSize: '1.2rem',
-                  cursor: 'pointer',
-                  padding: '5px 10px'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
+          <AnimeModal
+            anime={animes[selectedAnime]}
+            onClose={handleModalClose}
+            onConfirm={handleConfirm}
+            debugMode={debugMode}
+          />
         )}
         
         {/* Debug Mode Toggle */}
@@ -941,81 +381,13 @@ function App() {
           </div>
         )}
 
-        {/* Panel de Métricas */}
+        {/* Metrics Panel */}
         {showMetrics && metrics && (
-          <div style={{
-            position: 'fixed',
-            top: 20,
-            right: 20,
-            background: 'rgba(0,0,0,0.9)',
-            padding: '15px',
-            borderRadius: '8px',
-            color: '#fff',
-            fontSize: '0.9rem',
-            minWidth: '250px',
-            zIndex: 50
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <h3 style={{ margin: 0, color: '#61dafb' }}>Métricas (7 días)</h3>
-              <button 
-                onClick={() => setShowMetrics(false)}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: '#999', 
-                  cursor: 'pointer',
-                  fontSize: '1.2rem'
-                }}
-              >
-                ✕
-              </button>
-            </div>
-            
-            {metrics.metrics && metrics.metrics.length > 0 ? (
-              <div>                {metrics.metrics.slice(0, 5).map((day, idx) => (
-                  <div key={idx} style={{ 
-                    marginBottom: '8px', 
-                    padding: '8px', 
-                    background: 'rgba(255,255,255,0.1)',
-                    borderRadius: '4px'
-                  }}>
-                    <div style={{ fontWeight: 'bold' }}>{day.date}</div>
-                    <div>Búsquedas: {day.searches}</div>
-                    <div>Clics: {day.clicks}</div>
-                    <div style={{ color: day.conversion_rate > 0 ? '#7df740' : '#ffd700' }}>
-                      Conversión: {day.conversion_rate}%
-                    </div>
-                    <div style={{ 
-                      color: day.avg_load_time_sec < 1 ? '#7df740' : day.avg_load_time_sec < 3 ? '#ffd700' : '#ff6b6b',
-                      borderTop: '1px solid rgba(255,255,255,0.1)',
-                      marginTop: '5px',
-                      paddingTop: '5px'
-                    }}>
-                      Tiempo de carga: {day.avg_load_time_sec || 'N/A'} s
-                    </div>
-                  </div>
-                ))}
-                
-                <button 
-                  onClick={fetchMetrics}
-                  style={{
-                    background: '#61dafb',
-                    color: '#000',
-                    border: 'none',
-                    padding: '5px 10px',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '0.8rem',
-                    marginTop: '10px'
-                  }}
-                >
-                  Actualizar
-                </button>
-              </div>
-            ) : (
-              <div>No hay datos disponibles</div>
-            )}
-          </div>
+          <MetricsPanel 
+            metrics={metrics}
+            onClose={() => setShowMetrics(false)}
+            onRefresh={fetchMetrics}
+          />
         )}
       </div>
     </div>
