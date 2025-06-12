@@ -1,79 +1,60 @@
+# Manual de Usuario - S.A.R. (Smart Anime Recommender)
 
-# README - S.A.R. (Smart Anime Recommender)
+## Índice
 
-<div align="center">
-  <img src="frontend/images/ruby.webp" alt="S.A.R. Logo" width="150" />
-  <br>
-  <h3>Sistema inteligente de recomendación de anime basado en IA</h3>
-</div>
+1. [Introducción](#introducción)
+2. [Visión General](#visión-general)
+3. [Manual de Usuario](#manual-de-usuario)
+   1. [Requisitos del sistema](#31-requisitos-del-sistema)
+   2. [Instalación y puesta en marcha](#32-instalación-y-puesta-en-marcha)
+   3. [Uso de la interfaz web](#33-uso-de-la-interfaz-web)
+   4. [Realización de búsquedas y filtros](#34-realización-de-búsquedas-y-filtros)
+   5. [Interpretación de resultados](#35-interpretación-de-resultados)
+   6. [Funcionalidades adicionales](#36-funcionalidades-adicionales)
+   7. [Resolución de problemas comunes](#37-resolución-de-problemas-comunes)
 
-## 📖 Índice
+## Introducción
 
-- [Acerca del Proyecto](#-acerca-del-proyecto)
-- [Características](#-características)
-- [Arquitectura](#-arquitectura)
-- [Requisitos](#-requisitos)
-- [Instalación](#-instalación)
-- [Manual de Usuario](#-manual-de-usuario)
-- [KPIs y Métricas](#-kpis-y-métricas)
-- [Base de Datos](#-base-de-datos)
-- [Licencia](#-licencia)
+S.A.R. (Smart Anime Recommender) es un sistema avanzado de recomendación de anime basado en inteligencia artificial. Este sistema utiliza procesamiento de lenguaje natural y algoritmos de machine learning para ofrecer recomendaciones personalizadas de anime basadas en palabras clave, géneros o descripciones proporcionadas por el usuario.
 
-## 🌟 Acerca del Proyecto
+## Visión General
 
-S.A.R. (Smart Anime Recommender) es un sistema avanzado de recomendación de anime que utiliza técnicas de procesamiento de lenguaje natural (NLP) y machine learning para ofrecer recomendaciones personalizadas de anime basadas en descripciones textuales de preferencias del usuario.
+S.A.R. proporciona una interfaz web intuitiva que permite a los usuarios descubrir nuevos animes basados en sus intereses. El sistema analiza una base de datos con más de 17,000 títulos de anime, cada uno con metadatos detallados como género, sinopsis, calificación, año de emisión y otros atributos relevantes.
 
-El sistema analiza una base de datos con más de 17,000 títulos de anime, cada uno con metadatos detallados como género, sinopsis, calificación, año de emisión y otros atributos relevantes.
+## Manual de Usuario
 
-## ✨ Características
+### 1.1. Requisitos del sistema
 
-- **Búsqueda por descripción**: Introduce frases como "cyberpunk dystopia" o "slice of life romance" y obtén recomendaciones relevantes
-- **Interfaz web intuitiva**: Diseñada para ser atractiva y fácil de usar
-- **Sugerencias rápidas**: Categorías predefinidas para exploración inmediata
-- **Visualización detallada**: Información completa de cada anime incluyendo sinopsis, puntuación, ranking, episodios y géneros
-- **Tracking de métricas**: Sistema integrado de seguimiento de uso y rendimiento
-- **Persistencia de datos**: Tus búsquedas recientes se conservan entre sesiones
-- **Modo desarrollador**: Herramientas avanzadas de depuración y análisis
-
-## 🏗️ Arquitectura
-
-S.A.R. utiliza una arquitectura moderna dividida en tres componentes principales:
-
-1. **Frontend**: Interfaz web construida con React + Vite
-2. **API Backend**: Servidor FastAPI que proporciona endpoints para recomendaciones y métricas
-3. **Motor de IA**: Modelo de machine learning para procesamiento de texto y recomendaciones
-
-### Diagrama de Flujo
-
-```
-┌──────────┐     ┌────────┐     ┌───────────────┐     ┌─────────────┐
-│  Usuario │────►│ React  │────►│ FastAPI       │────►│ PostgreSQL  │
-│          │◄────│ (Vite) │◄────│ + Módulos IA  │◄────│   DB        │
-└──────────┘     └────────┘     └───────────────┘     └─────────────┘
-```
-
-## 🔧 Requisitos
-
-### Requisitos mínimos:
+#### Requisitos mínimos:
 
 * **Sistema operativo**: Windows 10/11, macOS 10.15+, o Linux (distribución moderna)
 * **Memoria RAM**: 4GB mínimo, 8GB recomendado
 * **Procesador**: Intel Core i3/AMD Ryzen 3 o superior
 * **Espacio en disco**: 2GB libres mínimo
 * **Navegador**: Chrome 90+, Firefox 90+, Edge 90+ o Safari 14+
+* **Conexión a Internet**: Requerida para cargar imágenes de anime
 
-### Software requerido:
+#### Software requerido:
+
+Para ejecutar S.A.R. desde el código fuente, necesitarás:
 
 * **Python**: Versión 3.8+ (preferiblemente 3.11)
 * **Node.js**: Versión 14+ (recomendado 16+)
-* **Docker** y **Docker Compose**: Para la configuración containerizada
+* **npm**: Versión 6+
+* **Docker y Docker Compose**: Si deseas utilizar la configuración containerizada
 * **PostgreSQL**: Versión 12+ (solo si no utilizas Docker)
 
-## 🚀 Instalación
+### 1.2. Instalación y puesta en marcha
 
-### Método 1: Usando S.A.R. Launcher (recomendado)
+#### A) Instalación manual (para desarrollo)
 
-1. **Configurar el entorno virtual de Python**:
+1. **Clonar el repositorio** (si aplica):
+   ```bash
+   git clone <url-repositorio>
+   cd proyectoIA
+   ```
+
+2. **Configurar el entorno virtual de Python**:
    ```bash
    python -m venv .venv311
    .venv311\Scripts\activate  # En Windows
@@ -81,84 +62,218 @@ S.A.R. utiliza una arquitectura moderna dividida en tres componentes principales
    pip install -r requirements.txt
    ```
 
-2. **Configurar la base de datos**:
-   ```bash
-   cd backend/data
-   docker-compose up -d
-   ```
+3. **Configurar la base de datos PostgreSQL**:
+   * Opción 1: Usar Docker (recomendado)
+     ```bash
+     cd backend/data
+     docker-compose up -d
+     ```
+   
+   * Opción 2: Instalar y configurar PostgreSQL manualmente
+     - Instalar PostgreSQL 12+
+     - Crear una base de datos llamada `animes`
+     - Crear un usuario `anime_db` con contraseña `anime_db`
+     - Ejecutar los scripts en `backend/data/init-scripts/`
 
-3. **Instalar dependencias del frontend**:
+4. **Instalar dependencias del frontend**:
    ```bash
    cd frontend
    npm install
    ```
 
-4. **Iniciar el sistema completo**:
+5. **Iniciar el sistema completo** con el script launcher:
    ```bash
    python S.A.R_Launcher.py
    ```
 
-### Método 2: Iniciar componentes manualmente
+   O iniciar cada componente por separado:
 
-1. **Iniciar la base de datos**:
+   * Backend:
+     ```bash
+     cd backend/API
+     uvicorn api:app --reload --host 127.0.0.1 --port 8000
+     ```
+   
+   * Frontend:
+     ```bash
+     cd frontend
+     npm run dev
+     ```
+
+6. **Acceder a la interfaz web**:
+   - Abre tu navegador y visita `http://localhost:5173`
+
+#### B) Instalación usando Docker (para producción)
+
+1. **Tener Docker y Docker Compose instalados**
+
+2. **Descargar o clonar el repositorio**:
    ```bash
-   cd backend/data
+   git clone <url-repositorio>
+   cd proyectoIA
+   ```
+
+3. **Construir e iniciar los contenedores**:
+   ```bash
    docker-compose up -d
    ```
 
-2. **Iniciar el backend**:
-   ```bash
-   cd backend/API
-   uvicorn api:app --reload --host 127.0.0.1 --port 8000
-   ```
+4. **Acceder a la interfaz web**:
+   - Abre tu navegador y visita `http://localhost:5173`
 
-3. **Iniciar el frontend**:
-   ```bash
-   cd frontend
-   npm run dev
-   ```
+### 1.3. Uso de la interfaz web
 
-Una vez completados estos pasos, podrás acceder a S.A.R. a través de tu navegador en `http://localhost:5173`.
+La interfaz de S.A.R. ha sido diseñada para ser intuitiva y fácil de usar:
 
-## 📘 Manual de Usuario
+#### Página principal
 
-Para obtener información detallada sobre cómo utilizar S.A.R., consulta el [Manual de Usuario](docs/MANUAL_DE_USUARIO.md) completo, que incluye:
+![Interfaz principal](../docs/images/main_interface.png)
 
-- [Requisitos del sistema](docs/MANUAL_DE_USUARIO.md#31-requisitos-del-sistema)
-- [Instalación y puesta en marcha](docs/MANUAL_DE_USUARIO.md#32-instalación-y-puesta-en-marcha)
-- [Uso de la interfaz web](docs/MANUAL_DE_USUARIO.md#33-uso-de-la-interfaz-web)
-- [Realización de búsquedas y filtros](docs/MANUAL_DE_USUARIO.md#34-realización-de-búsquedas-y-filtros)
-- [Interpretación de resultados](docs/MANUAL_DE_USUARIO.md#35-interpretación-de-resultados)
-- [Funcionalidades adicionales](docs/MANUAL_DE_USUARIO.md#36-funcionalidades-adicionales)
-- [Resolución de problemas comunes](docs/MANUAL_DE_USUARIO.md#37-resolución-de-problemas-comunes)
+1. **Barra de navegación**: Contiene el título del proyecto "Smart Anime Recommender".
+2. **Área de búsqueda**: Un campo de texto donde puedes ingresar tus palabras clave o descripciones.
+3. **Botón de búsqueda**: Presiona "Recommend" para iniciar la búsqueda.
+4. **Selector de cantidad**: Elige cuántas recomendaciones quieres ver (Top 5, 10, 20, 50 o 100).
+5. **Sugerencias rápidas**: Botones con categorías predefinidas para búsquedas instantáneas.
+6. **Fondo decorativo**: Imágenes de anime sutiles que dan ambientación a la interfaz.
 
-## 📊 KPIs y Métricas
+### 1.4. Realización de búsquedas y filtros
 
-S.A.R. incluye un sistema completo de tracking de métricas para evaluar su rendimiento:
+#### Métodos de búsqueda
 
-- **Tasa de conversión**: Porcentaje de búsquedas que resultan en clics sobre animes
-- **Tiempos de carga**: Medición del rendimiento del sistema
-- **Volumen de búsquedas**: Cantidad de consultas realizadas
-- **Tasa de clics**: Cantidad de animes seleccionados
+1. **Búsqueda por palabras clave**:
+   - Escribe términos como "romance comedy", "action adventure", "cyberpunk dystopia"
+   - Haz clic en "Recommend" o presiona Enter
 
-Para más información sobre la implementación de KPIs, consulta la [documentación específica](docs/KPI_Implementation.md).
+2. **Uso de sugerencias rápidas**:
+   - Haz clic en cualquiera de las categorías predefinidas:
+     - romance comedy
+     - action adventure
+     - sports
+     - fantasy magic
+     - slice of life
+     - psychological drama
 
-## 💾 Base de Datos
+3. **Búsqueda avanzada (por conceptos)**:
+   - Puedes describir el tipo de contenido que buscas:
+     - "high school students with supernatural powers"
+     - "medieval fantasy with strong female protagonist"
+     - "dystopian future with philosophical themes"
 
-S.A.R. utiliza PostgreSQL para el almacenamiento y gestión de:
+#### Filtrado de resultados
 
-- **Dataset de anime**: Más de 17,000 títulos con metadatos completos
-- **Métricas de uso**: Datos de interacción de usuarios
-- **Estadísticas de rendimiento**: Tiempos de respuesta y carga
+Después de realizar una búsqueda, puedes:
 
-La elección de PostgreSQL como sistema de gestión de base de datos está [justificada en detalle aquí](docs/justificacion_postgresql.md).
+1. **Ajustar la cantidad de resultados**:
+   - Utiliza el selector "Show:" para cambiar entre Top 5, 10, 20, 50 o 100 resultados
+   - Los resultados se actualizarán automáticamente
 
-## 📜 Licencia
+2. **Nueva búsqueda**:
+   - Usa el botón "New Search" para limpiar los resultados y realizar una nueva consulta
+   - También puedes modificar tu búsqueda anterior y volver a presionar "Recommend"
 
-Este proyecto está distribuido bajo la licencia MIT. Para más detalles, consulta el archivo `LICENSE`.
+### 1.5. Interpretación de resultados
 
----
+Después de realizar una búsqueda, S.A.R. mostrará una lista de animes recomendados:
 
-<div align="center">
-  <p>Desarrollado por Equipo S.A.R. | 2025</p>
-</div>
+![Resultados de búsqueda](../docs/images/search_results.png)
+
+Cada tarjeta de anime contiene:
+
+1. **Imagen del anime**: Portada o imagen representativa
+2. **Título**: Nombre del anime
+3. **Puntuación**: Rating en una escala de 1 a 10 (ejemplo: "Score: 8.76")
+4. **Ranking**: Posición en la clasificación general (ejemplo: "Ranking #24")
+5. **Porcentaje de coincidencia**: Qué tan bien coincide con tu búsqueda (ejemplo: "Match: 95.2%")
+6. **Tipo**: TV, Película, OVA, etc.
+7. **Año**: Año de emisión o lanzamiento
+8. **Estado**: Si está en emisión o finalizado
+9. **Episodios**: Número total de episodios
+10. **Géneros**: Etiquetas de género representadas con colores
+11. **Sinopsis**: Breve descripción del contenido
+
+#### Detalles adicionales
+
+Al hacer clic en cualquier tarjeta de anime, se abrirá una ventana modal con:
+
+![Detalle de anime](../docs/images/anime_detail.png)
+
+1. **Confirmación de visualización**: Pregunta si deseas ver este anime
+2. **Botón "Sí"**: Te redirigirá a AnimeFlv para buscar este título
+3. **Botón "No"**: Cerrará el modal y volverás a los resultados de búsqueda
+
+### 1.6. Funcionalidades adicionales
+
+#### Modo desarrollador
+
+S.A.R. incluye un modo de depuración para desarrolladores o usuarios avanzados:
+
+1. **Activar modo depuración**:
+   - En la esquina inferior derecha hay una opción "Debug Mode"
+   - Activa la casilla para habilitar las funciones de depuración
+
+2. **Funciones disponibles en modo depuración**:
+   - Ver datos: Muestra la estructura completa del objeto de anime en la consola del navegador
+   - Botón Debug: Aparece en las tarjetas de anime para inspeccionar sus datos
+
+#### Panel de métricas
+
+El panel de métricas proporciona estadísticas sobre el uso del sistema:
+
+1. **Activar panel de métricas**:
+   - Activa la casilla "Show Metrics" en la esquina inferior derecha
+
+2. **Información disponible**:
+   - Búsquedas realizadas por día
+   - Clics en animes por día
+   - Tasa de conversión (porcentaje de búsquedas que resultaron en clics)
+   - Tiempos de carga promedio
+   - Botón para actualizar métricas
+
+#### Persistencia de datos
+
+S.A.R. conserva tu última búsqueda entre sesiones:
+
+1. **Almacenamiento local**: La última búsqueda y resultados se guardan en tu navegador
+2. **Reanudación**: Al volver a cargar la página, se recuperará tu última búsqueda
+
+### 1.7. Resolución de problemas comunes
+
+#### Problema: El sistema no muestra resultados
+
+**Posibles soluciones**:
+- Verifica tu conexión a internet
+- Asegúrate de haber escrito al menos una palabra clave en el campo de búsqueda
+- Intenta con términos más generales (ejemplo: "action" en lugar de un término muy específico)
+- Revisa que el backend esté funcionando correctamente visitando `http://localhost:8000/health`
+
+#### Problema: Las imágenes no se cargan
+
+**Posibles soluciones**:
+- Verifica tu conexión a internet
+- Las imágenes provienen de servicios externos que podrían estar caídos temporalmente
+- S.A.R. mostrará una imagen predeterminada cuando la original no pueda cargarse
+
+#### Problema: Error de conexión al backend
+
+**Posibles soluciones**:
+- Verifica que el servidor backend esté en ejecución (debería estar disponible en `http://localhost:8000`)
+- Reinicia el backend ejecutando nuevamente `uvicorn api:app --reload` en el directorio `backend/API`
+- Comprueba si hay errores en la consola donde se ejecuta el backend
+- Asegúrate de que PostgreSQL esté funcionando (especialmente si no usas Docker)
+
+#### Problema: Tiempos de respuesta lentos
+
+**Posibles soluciones**:
+- Reduce el número de resultados solicitados (ejemplo: usa "Top 5" en lugar de "Top 100")
+- Reinicia el servidor backend
+- Si estás usando Docker, asegúrate de que tu sistema tenga recursos suficientes asignados a Docker
+- Verifica la conexión a la base de datos ejecutando `http://localhost:8000/health` en tu navegador
+
+#### Problema: El frontend no responde
+
+**Posibles soluciones**:
+- Actualiza la página del navegador
+- Borra la caché del navegador
+- Reinicia el servidor frontend con `npm run dev` en el directorio `frontend`
+- Verifica la consola de desarrollador en el navegador para identificar errores específicos
+
