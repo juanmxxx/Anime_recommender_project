@@ -39,3 +39,5 @@ for row in rows:
 
 cur.close()
 conn.close()
+
+

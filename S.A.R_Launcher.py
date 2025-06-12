@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 S.A.R Launcher - Script de inicio para Smart Anime Recommender
+- Inicia los contenedores Docker si no están activos
 - Inicia el backend FastAPI y el frontend React
 - Gestiona procesos y terminación limpia
 """
@@ -18,6 +19,61 @@ from pathlib import Path
 
 # Control para evitar terminación múltiple
 is_terminating = threading.Event()
+
+def check_docker_running():
+    """Verifica si Docker está ejecutándose"""
+    try:
+        subprocess.run(
+            ["powershell.exe", "docker info"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=True
+        )
+        return True
+    except subprocess.CalledProcessError:
+        return False
+
+def start_docker_containers():
+    """Inicia los contenedores Docker necesarios para la aplicación"""
+    print("🔄 Verificando contenedores Docker...")
+    
+    # Ruta al archivo docker-compose.yml
+    docker_compose_path = Path(__file__).parent / "backend" / "data"
+    
+    if not (docker_compose_path / "docker-compose.yml").exists():
+        print("❌ Error: No se encontró docker-compose.yml")
+        return False
+    
+    # Verificar si Docker está en ejecución
+    if not check_docker_running():
+        print("❌ Error: Docker no está en ejecución. Por favor, inicie Docker Desktop.")
+        return False
+    
+    # Verificar si los contenedores ya están activos
+    result = subprocess.run(
+        ["powershell.exe", "docker ps -q --filter 'name=anime-db'"],
+        capture_output=True,
+        text=True
+    )
+    
+    if result.stdout.strip():
+        print("✅ Contenedores Docker ya están activos")
+        return True
+    
+    # Iniciar contenedores
+    print("🔄 Iniciando contenedores Docker...")
+    try:
+        subprocess.run(
+            ["powershell.exe", "docker-compose up -d"],
+            cwd=docker_compose_path,
+            check=True
+        )
+        print("✅ Contenedores Docker iniciados correctamente")
+        time.sleep(5)  # Dar tiempo para que la base de datos esté lista
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"❌ Error al iniciar contenedores Docker: {e}")
+        return False
 
 def start_backend():
     """Inicia el backend con FastAPI"""
@@ -95,6 +151,9 @@ def main():
     atexit.register(lambda: None if is_terminating.is_set() else terminate_processes(processes))
     
     # Iniciar servicios
+    if not start_docker_containers():
+        return 1
+    
     processes['backend'] = start_backend()
     if not processes['backend']:
         return 1

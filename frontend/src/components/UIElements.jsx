@@ -1,13 +1,10 @@
 import React from 'react';
-// Debug log
-console.log('UIElements.jsx loaded');
 
 /**
  * Componente para el fondo decorativo con imágenes de anime
  * @param {Object} props - Propiedades del componente
  */
 export const BackgroundDecorator = () => {
-  console.log('BackgroundDecorator rendering');
   // Imágenes decorativas de fondo (chicas anime)
   const backgroundGirls = [
     '/images/E2d2giGWQAMr6dx.jpg',

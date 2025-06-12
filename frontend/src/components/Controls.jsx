@@ -143,10 +143,7 @@ export const SearchBar = ({
  * Solo visible en entorno de desarrollo
  */
 export const DebugControls = ({ debugMode, setDebugMode, showMetrics, onMetricsToggle }) => {
-  console.log('DebugControls rendering, NODE_ENV:', process.env.NODE_ENV, 'debugMode:', debugMode);
-  
-  // Forzar mostrar en desarrollo o si no se puede determinar el entorno
-  // if (process.env.NODE_ENV === 'production') return null;
+  if (process.env.NODE_ENV === 'production') return null;
   
   return (
     <div style={{
