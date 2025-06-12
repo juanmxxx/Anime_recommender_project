@@ -1,7 +1,5 @@
 # Manual de Usuario - S.A.R. (Smart Anime Recommender)
 
-![S.A.R. Logo](../frontend/images/ruby.webp)
-
 ## Índice
 
 1. [Introducción](#introducción)
@@ -25,7 +23,7 @@ S.A.R. proporciona una interfaz web intuitiva que permite a los usuarios descubr
 
 ## Manual de Usuario
 
-### 3.1. Requisitos del sistema
+### 1.1. Requisitos del sistema
 
 #### Requisitos mínimos:
 
@@ -46,7 +44,7 @@ Para ejecutar S.A.R. desde el código fuente, necesitarás:
 * **Docker y Docker Compose**: Si deseas utilizar la configuración containerizada
 * **PostgreSQL**: Versión 12+ (solo si no utilizas Docker)
 
-### 3.2. Instalación y puesta en marcha
+### 1.2. Instalación y puesta en marcha
 
 #### A) Instalación manual (para desarrollo)
 
@@ -123,7 +121,7 @@ Para ejecutar S.A.R. desde el código fuente, necesitarás:
 4. **Acceder a la interfaz web**:
    - Abre tu navegador y visita `http://localhost:5173`
 
-### 3.3. Uso de la interfaz web
+### 1.3. Uso de la interfaz web
 
 La interfaz de S.A.R. ha sido diseñada para ser intuitiva y fácil de usar:
 
@@ -138,7 +136,7 @@ La interfaz de S.A.R. ha sido diseñada para ser intuitiva y fácil de usar:
 5. **Sugerencias rápidas**: Botones con categorías predefinidas para búsquedas instantáneas.
 6. **Fondo decorativo**: Imágenes de anime sutiles que dan ambientación a la interfaz.
 
-### 3.4. Realización de búsquedas y filtros
+### 1.4. Realización de búsquedas y filtros
 
 #### Métodos de búsqueda
 
@@ -173,7 +171,7 @@ Después de realizar una búsqueda, puedes:
    - Usa el botón "New Search" para limpiar los resultados y realizar una nueva consulta
    - También puedes modificar tu búsqueda anterior y volver a presionar "Recommend"
 
-### 3.5. Interpretación de resultados
+### 1.5. Interpretación de resultados
 
 Después de realizar una búsqueda, S.A.R. mostrará una lista de animes recomendados:
 
@@ -203,7 +201,7 @@ Al hacer clic en cualquier tarjeta de anime, se abrirá una ventana modal con:
 2. **Botón "Sí"**: Te redirigirá a AnimeFlv para buscar este título
 3. **Botón "No"**: Cerrará el modal y volverás a los resultados de búsqueda
 
-### 3.6. Funcionalidades adicionales
+### 1.6. Funcionalidades adicionales
 
 #### Modo desarrollador
 
@@ -238,7 +236,7 @@ S.A.R. conserva tu última búsqueda entre sesiones:
 1. **Almacenamiento local**: La última búsqueda y resultados se guardan en tu navegador
 2. **Reanudación**: Al volver a cargar la página, se recuperará tu última búsqueda
 
-### 3.7. Resolución de problemas comunes
+### 1.7. Resolución de problemas comunes
 
 #### Problema: El sistema no muestra resultados
 

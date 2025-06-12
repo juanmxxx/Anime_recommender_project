@@ -7,7 +7,6 @@ Combina las mejoras del sistema basado en contenido con un modelo de Deep Learni
 que incorpora:
 - Scoring de popularidad (favoritos)
 - Factor de recency (fecha de emisión)
-- Detección especializada de ídolos
 - Expansión de keyphrases
 - Arquitectura de red neuronal mejorada
 
@@ -56,7 +55,7 @@ DB_CONFIG = {
 }
 
 class ImprovedRecommendationMLP(nn.Module):
-    """Red neuronal mejorada para recomendación con features adicionales"""
+    """Red neuronal mejorada para recomendación con mejoras adicionales"""
     
     def __init__(self, embedding_dim=384, additional_features=4):
         super().__init__()
@@ -89,7 +88,7 @@ class ImprovedRecommendationMLP(nn.Module):
             nn.Dropout(0.1)
         )
         
-        # Attention mechanism simple para features
+        # Mecanismo de atencion
         self.attention = nn.Sequential(
             nn.Linear(512 + 64, 128),
             nn.Tanh(),
@@ -308,6 +307,7 @@ class ImprovedAnimeRecommender:
             return 1990  # Año por defecto para animes sin fecha
         
         # Buscar años de 4 dígitos en el string
+        
         years = re.findall(r'\b(19|20)\d{2}\b', str(aired_str))
         if years:
             return int(years[0])
@@ -346,26 +346,7 @@ class ImprovedAnimeRecommender:
         
         content_score = min(1.0, content_matches / 10)
         
-        # 4. Idol detection score
-        idol_score = 0
-        if any(keyword in keyphrase_lower for keyword in self.idol_keywords):
-            # Buscar series conocidas de ídolos
-            idol_series = ['love live', 'idolmaster', 'aikatsu', 'pretty rhythm', 'idol school']
-            for series in idol_series:
-                if series in name or series in synopsis:
-                    idol_score = 1.0
-                    break
-            
-            # Buscar keywords de ídolos en géneros y synopsis
-            if 'idol' in genres or 'music' in genres:
-                idol_score = max(idol_score, 0.8)
-            
-            idol_keywords_in_text = sum(1 for keyword in self.idol_keywords 
-                                      if keyword in synopsis or keyword in genres)
-            idol_score = max(idol_score, min(1.0, idol_keywords_in_text / 3))
         
-        return np.array([popularity_score, recency_score, content_score, idol_score], dtype=np.float32)
-    
     def process_keyphrase(self, keyphrase: str) -> str:
         """Procesa y expande keyphrases"""
         # Extraer keyphrases usando el tokenizador existente
