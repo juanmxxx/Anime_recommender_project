@@ -3,6 +3,7 @@
 
 DROP TABLE IF EXISTS characters;
 DROP TABLE IF EXISTS anime;
+DROP TABLE IF EXISTS user_metrics;
 
 -- Tabla para anime
 -- Basada en la estructura del dataset de AniList API
@@ -34,3 +35,47 @@ CREATE TABLE characters (
     description TEXT,
     role VARCHAR(50)
 );
+
+
+-- Tabla de métricas para tracking de conversión
+CREATE TABLE IF NOT EXISTS user_metrics (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(50) NOT NULL,
+    event_type VARCHAR(20) NOT NULL, -- 'search', 'click', 'load_time'
+    prompt_text TEXT,
+    anime_clicked VARCHAR(255),
+    anime_id INTEGER,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_agent TEXT,
+    ip_address INET,
+    load_time_ms INTEGER
+);
+
+
+
+
+
+
+
+-- Actualización de la tabla de métricas para incluir campos adicionales / -- para mejorar el seguimiento de eventos
+-- Índices para optimizar consultas de métricas
+CREATE INDEX idx_user_metrics_session ON user_metrics(session_id);
+CREATE INDEX idx_user_metrics_event_type ON user_metrics(event_type);
+CREATE INDEX idx_user_metrics_timestamp ON user_metrics(timestamp);
+
+-- Vista para calcular tasa de conversión y tiempo de carga promedio
+CREATE OR REPLACE VIEW conversion_metrics AS
+SELECT
+    DATE(timestamp) as date,
+    COUNT(CASE WHEN event_type = 'search' THEN 1 END) as total_searches,
+    COUNT(CASE WHEN event_type = 'click' THEN 1 END) as total_clicks,
+    ROUND(
+        (COUNT(CASE WHEN event_type = 'click' THEN 1 END)::decimal /
+         NULLIF(COUNT(CASE WHEN event_type = 'search' THEN 1 END), 0)) * 100, 2
+    ) as conversion_rate_percent,
+    ROUND(AVG(CASE WHEN event_type = 'load_time' THEN load_time_ms::decimal ELSE NULL END), 2) as avg_load_time_ms
+FROM user_metrics
+GROUP BY DATE(timestamp)
+ORDER BY date DESC;
+
+
