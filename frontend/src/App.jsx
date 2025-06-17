@@ -59,8 +59,8 @@ function App() {
   const handleCardClick = idx => {
     // Registrar evento de clic
     const anime = animes[idx];
-    const animeName = getAnimeField(anime, 'name');
-    const animeId = getAnimeField(anime, 'anime_id');
+    const animeName = getAnimeField(anime, 'romaji_title');
+    const animeId = getAnimeField(anime, 'id');
     
     trackEvent('click', { 
       anime_clicked: animeName,
@@ -79,29 +79,42 @@ function App() {
     setSelectedAnime(null);
   };
   
-  /**
-   * Maneja la confirmación para ver un anime
-   * Abre una nueva pestaña con la URL de AnimeFlv
-   */
-  const handleConfirm = async () => {
-    if (selectedAnime !== null) {
+/**
+ * Maneja la confirmación para ver un anime
+ * Abre una nueva pestaña con la URL de AnimeFlv
+ */
+const handleConfirm = async () => {
+  if (selectedAnime !== null) {
+    try {
       const anime = animes[selectedAnime];
-      const name = getAnimeField(anime, 'name');
-      const animeId = getAnimeField(anime, 'anime_id');
+      const name = getAnimeField(anime, 'english_title');
+      const animeId = getAnimeField(anime, 'id');
       
       // Registrar evento de clic
       await trackEvent('click', { 
-        anime_clicked: name,
-        anime_id: animeId 
+        anime_clicked: name || 'unknown',
+        anime_id: animeId || 'unknown'
       });
       
-      // Obtener URL de AnimeFlv y abrir en nueva pestaña
-      const animeFlvUrl = `https://www3.animeflv.net/browse?q=${encodeURIComponent(name)}`;
+      // Determinar la URL de AnimeFlv
+      let animeFlvUrl = 'https://www3.animeflv.net/';
+      
+      // Solo construir URL de búsqueda si hay un título válido
+      if (name && typeof name === 'string' && name.trim() !== '') {
+        const sanitizedName = name.trim();
+        animeFlvUrl = `https://www3.animeflv.net/browse?q=${encodeURIComponent(sanitizedName)}`;
+      }
+      
+      // Abrir en nueva pestaña
       window.open(animeFlvUrl, '_blank');
+    } catch (error) {
+      console.error('Error opening anime page:', error);
+      // Fallback en caso de error
+      window.open('https://www3.animeflv.net/', '_blank');
     }
-    handleModalClose();
-  };
-
+  }
+  handleModalClose();
+};
   /**
    * Obtiene métricas de uso del backend
    */

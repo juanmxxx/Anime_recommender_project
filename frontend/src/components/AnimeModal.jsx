@@ -64,13 +64,13 @@ const AnimeModal = ({ anime, onClose, onConfirm, debugMode }) => {
         {/* Imagen del anime */}
         <img 
           src={getAnimeField(anime, "image_url")} 
-          alt={getAnimeField(anime, "name")} 
+          alt={getAnimeField(anime, "english_title")} 
           style={{ width: 90, borderRadius: 12, marginBottom: 16, boxShadow: '0 2px 8px #0003' }} 
           onError={(e) => { e.target.src = '/images/defaultImagePortrait.jpg'; }}
         />
         {/* Título del anime */}
         <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.3rem', color: '#61dafb' }}>
-          {getAnimeField(anime, "name")}
+          {getAnimeField(anime, "english_title")}
         </h2>
         
         {/* Año de emisión (si está disponible) */}

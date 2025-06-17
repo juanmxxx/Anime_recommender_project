@@ -10,6 +10,14 @@ import pathlib
 import psycopg2
 from datetime import datetime
 from pydantic import BaseModel
+# With this:
+import sys
+import os
+# Add parent directory to path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+# Now import using the absolute path
+from backend.AI.tools.APIprocessor import get_recommendations_from_prompt, CustomJSONEncoder
+
 
 # Modelo para tracking de métricas
 class MetricEvent(BaseModel):
@@ -67,15 +75,19 @@ def log_metric_event(session_id: str, event_type: str, request: Request,
         print(f"Error logging metric: {e}")
         return False
 
+
+
 # Agregar la ruta al directorio AI al path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'AI'))
 # Agregar la ruta base del proyecto para resolver imports de 'backend'
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 # Importar directamente las funciones del recomendador
+
+
 try:
-    from outputAndFormatProcessor import get_recommendations_json, ImprovedAnimeRecommendationSystem
+    get_recommendations_from_prompt  # Verificar que la función se importe correctamente
     # Inicializar el sistema una vez para reutilizarlo en todas las peticiones
-    anime_system = ImprovedAnimeRecommendationSystem()
+
 except Exception as e:
     print(f"Error al importar outputAndFormatProcessor: {e}")
     traceback.print_exc()
@@ -113,14 +125,12 @@ def recommend(keywords: str = Query(...), top_n: int = Query(5)):
         JSON con recomendaciones o mensaje de error
     """
     try:
-        if anime_system is None:
-            return {"error": "El sistema de recomendación no está inicializado correctamente"}
         
         print(f"Procesando solicitud de recomendación con keywords: {keywords}")
         
         # Llamar directamente a la función de recomendación
-        json_result = get_recommendations_json(keywords, anime_system, top_n)
-        
+        results = get_recommendations_from_prompt(keywords, top_n)
+        json_result = json.dumps(results, indent=2, ensure_ascii=False, cls=CustomJSONEncoder)
         # Convertir de string JSON a objeto Python
         parsed_data = json.loads(json_result)
         return parsed_data
@@ -142,22 +152,14 @@ def get_recommendations(keywords: str = Query(..., description="Palabras clave s
     try:
         print(f"Recibida solicitud de recomendación: keywords='{keywords}', top_n={top_n}")
         
-        if anime_system is None:
-            return {"error": "Sistema de recomendación no inicializado"}
+        # Llamar directamente a la función de recomendación
+        results = get_recommendations_from_prompt(keywords, top_n)
+        json_result = json.dumps(results, indent=2, ensure_ascii=False, cls=CustomJSONEncoder)
+        # Convertir de string JSON a objeto Python
+        parsed_data = json.loads(json_result)
         
-        # Usar el sistema mejorado
-        recommendations = anime_system.get_recommendations(keywords, top_n)
-        
-        # Obtener keyphrases extraídas
-        keyphrases = anime_system.get_last_keyphrases()
-        
-        print(f"Generadas {len(recommendations)} recomendaciones")
-        return {
-            "recommendations": recommendations,
-            "keyphrases": keyphrases,
-            "query": keywords,
-            "total_results": len(recommendations)
-        }
+        print(f"Generadas {len(parsed_data.get('recommendations', []))} recomendaciones")
+        return parsed_data
         
     except Exception as e:
         error_msg = str(e)
@@ -168,7 +170,6 @@ def get_recommendations(keywords: str = Query(..., description="Palabras clave s
             "error": f"Error en el sistema de recomendación: {error_msg}",
             "details": stack_trace
         }
-
 # Endpoints para métricas
 @app.post("/metrics/search")
 def log_search_event(request: Request, metric: MetricEvent):

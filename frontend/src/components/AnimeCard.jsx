@@ -87,13 +87,13 @@ const AnimeCard = ({ anime, index, onClick, debugMode }) => {
       {/* Imagen del anime */}
       <img 
         src={getAnimeField(anime, "image_url")} 
-        alt={getAnimeField(anime, "name")} 
+        alt={getAnimeField(anime, "english_title")} 
         style={{ width: 120, borderRadius: 8 }} 
         onError={(e) => { e.target.src = '/images/defaultImagePortrait.jpg'; }}
       />
       
       <div style={{ textAlign: 'left', width: '100%' }}>
-        <h2 style={{ margin: '0 0 0.5rem 0' }}>{getAnimeField(anime, "name")}</h2>
+        <h2 style={{ margin: '0 0 0.5rem 0' }}>{getAnimeField(anime, "romaji_title")}</h2>
         
         {/* Sinopsis */}
         <div style={{ 
@@ -107,7 +107,7 @@ const AnimeCard = ({ anime, index, onClick, debugMode }) => {
         }}>
           {/* Procesamiento y renderizado de la sinopsis */}
           {(() => {
-            const synopsis = getAnimeField(anime, "synopsis");
+            const synopsis = getAnimeField(anime, "description");
             if (!synopsis) return <p>No hay sinopsis disponible.</p>;
             
             // Dividir el texto en oraciones y agruparlas para mejor presentación
@@ -140,14 +140,14 @@ const AnimeCard = ({ anime, index, onClick, debugMode }) => {
         {/* Información básica: puntuación y ranking */}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
           <div style={{ fontWeight: 'bold', color: '#ffd700' }}>
-            Score: {getAnimeField(anime, "score") || "N/A"}
+            Score: {getAnimeField(anime, "average_score") || "N/A"}
           </div>
           <div style={{ color: '#61dafb' }}>
-            Ranking #{getAnimeField(anime, "rank") || "?"}
+            Popularity #{getAnimeField(anime, "popularity") || "?"}
           </div>
-          {getAnimeField(anime, "recommendation_score") && (
+          {getAnimeField(anime, "similarity") && (
             <div style={{ fontWeight: 'bold', color: '#7df740' }}>
-              Match: {(getAnimeField(anime, "recommendation_score") * 100 * (-1)).toFixed(1)}%
+              Similarity: {(getAnimeField(anime, "similarity") * 100).toFixed(1)}%
             </div>
           )}
         </div>
@@ -166,12 +166,12 @@ const AnimeCard = ({ anime, index, onClick, debugMode }) => {
             fontSize: '0.9rem',
             border: '1px solid #555'
           }}>
-            {getAnimeField(anime, "type") || 'TV'}
+            {getAnimeField(anime, "format") || 'TV'}
           </div>
           
           {/* Año de lanzamiento */}
           {(() => {
-            const aired = getAnimeField(anime, "aired");
+            const aired = getAnimeField(anime, "season_year");
             let year = null;
             
             if (aired) {
@@ -194,7 +194,7 @@ const AnimeCard = ({ anime, index, onClick, debugMode }) => {
           })()}
           
           {/* Estado (En emisión/Finalizado) */}
-          {(() => {
+          {/* {(() => {
             const status = getAnimeField(anime, "status");
             const isAiring = status === 'Currently Airing' || status === 'Airing';
             
@@ -210,7 +210,7 @@ const AnimeCard = ({ anime, index, onClick, debugMode }) => {
                 {status}
               </div>
             ) : null;
-          })()}
+          })()} */}
           
           {/* Episodios */}
           {(() => {
