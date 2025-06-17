@@ -32,3 +32,4 @@ tabulate
 colorama
 pgvector
 psutil
+pydantic-settings
