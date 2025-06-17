@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings
 DB_CONFIG = {
     "host": "localhost",
     "port": "5432", 
-    "database": "animes",
+    "database": "animeDB",
     "user": "anime_db",
     "password": "anime_db"
 }

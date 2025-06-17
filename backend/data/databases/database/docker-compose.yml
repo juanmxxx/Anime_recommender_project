@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: anime_db
       POSTGRES_PASSWORD: anime_db
       POSTGRES_DB: animeDB
+      # Permitir conexiones externas
+      POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:      
