@@ -4,6 +4,8 @@
 DROP TABLE IF EXISTS characters;
 DROP TABLE IF EXISTS anime;
 
+-- Tabla para anime
+-- Basada en la estructura del dataset de AniList API
 CREATE TABLE anime (
     id INTEGER PRIMARY KEY,
     romaji_title VARCHAR(255),

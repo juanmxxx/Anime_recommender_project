@@ -120,7 +120,6 @@ def get_recommendations_from_prompt(prompt: str, num_recommendations: int = 10) 
         # Preparar la respuesta
         clean_recommendations = []
         for anime in recommendations:
-            print(f"Debug anime data: {anime.keys()}")
             # Crear un objeto limpio con solo los campos necesarios
             clean_anime = {
                 "id": int(anime.get("id")) if anime.get("id") is not None else None,
