@@ -1,17 +1,16 @@
-# Modelos de datos para la API
 from pydantic import BaseModel
 from typing import Optional
 
-# Modelo para tracking de métricas
+# Schema for tracking metrics
 class MetricEvent(BaseModel):
     session_id: str
-    event_type: str  # 'search', 'click' o 'load_time'
+    event_type: str  # 'search', 'click' or 'load_time'
     prompt_text: Optional[str] = None
     anime_clicked: Optional[str] = None
     anime_id: Optional[int] = None
-    load_time_ms: Optional[int] = None  # Tiempo de carga en milisegundos
+    load_time_ms: Optional[int] = None  # Load time in milliseconds
 
-# Modelo para solicitudes de recomendación
+# Schema for recommendation requests
 class RecommendationRequest(BaseModel):
     keywords: str
     top_n: int = 5

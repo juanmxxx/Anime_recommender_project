@@ -12,7 +12,6 @@ export const API_URLS = {
   logSearch: `${API_BASE_URL}/metrics/search`,
   logClick: `${API_BASE_URL}/metrics/click`,
   logLoadTime: `${API_BASE_URL}/metrics/load_time`,
-  getMetrics: (days = 30) => `${API_BASE_URL}/metrics/conversion?days=${days}`
 };
 
 export default API_URLS;
