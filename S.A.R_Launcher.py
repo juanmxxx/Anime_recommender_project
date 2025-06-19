@@ -150,9 +150,9 @@ def main():
     signal.signal(signal.SIGINT, lambda sig, frame: terminate_processes(processes))
     atexit.register(lambda: None if is_terminating.is_set() else terminate_processes(processes))
     
-    # Iniciar servicios
-    if not start_docker_containers():
-        return 1
+    # # Iniciar servicios
+    # if not start_docker_containers():
+    #     return 1
     
     processes['backend'] = start_backend()
     if not processes['backend']:

@@ -189,14 +189,7 @@ const handleConfirm = async () => {
             debugMode={debugMode}
           />
         )}
-        
-        {/* Controles de depuración y métricas */}
-        <DebugControls 
-          debugMode={debugMode}
-          setDebugMode={setDebugMode}
-          showMetrics={showMetrics}
-          onMetricsToggle={handleMetricsToggle}
-        />
+
 
         {/* Panel de métricas */}
         {showMetrics && metrics && (
