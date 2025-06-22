@@ -1,0 +1,100 @@
+{
+  "success": true,
+  "query": "Bocchi",
+  "recommendations": [
+    {
+      "id": 165253,
+      "romaji_title": "Bocchi the Rock! Re:",
+      "english_title": "BOCCHI THE ROCK! Recap Part 1",
+      "average_score": 83.0,
+      "popularity": 21594,
+      "similarity": 0.440549283425702,
+      "description": "Compilation film of Bocchi the Rock! featuring new animation intro footage. The first of the Bocchi compilation movie duology.",
+      "format": "MOVIE",
+      "episodes": 1,
+      "season_year": 2024,
+      "image_url": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx165253-nAwyrMZm4jBA.jpg",
+      "status": "UNKNOWN",
+      "genres": [
+        "Comedy",
+        "Music",
+        "Slice of Life"
+      ]
+    },
+    {
+      "id": 171099,
+      "romaji_title": "Bocchi the Rock! Re:Re:",
+      "english_title": "BOCCHI THE ROCK! Recap Part 2",
+      "average_score": 84.0,
+      "popularity": 11291,
+      "similarity": 0.4371886752901033,
+      "description": "Compilation film of Bocchi the Rock! featuring new animation intro footage and additional scenes. The second of the Bocchi compilation movie duology.",
+      "format": "MOVIE",
+      "episodes": 1,
+      "season_year": 2024,
+      "image_url": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx171099-JexoHylkSZ6r.jpg",
+      "status": "UNKNOWN",
+      "genres": [
+        "Comedy",
+        "Music",
+        "Slice of Life"
+      ]
+    },
+    {
+      "id": 130003,
+      "romaji_title": "Bocchi the Rock!",
+      "english_title": "BOCCHI THE ROCK!",
+      "average_score": 87.0,
+      "popularity": 201200,
+      "similarity": 0.43050574692473753,
+      "description": "Hitori Gotou, “Bocchi-chan,” is a girl who’s so introverted and shy around people that she’d always start her conversations with “Ah...” \n \nDuring her middle school years, she started playing the guitar, wanting to join a band because she thought it could be an opportunity for even someone shy like her to also shine. But because she had no friends, she ended up practicing guitar for six hours every day all by herself. After becoming a skilled guitar player, she uploaded videos of herself playing the guitar to the internet under the name “Guitar Hero” and fantasized about performing at her school’s cultural festival concert. But not only could she not find any bandmates, before she knew it, she was in high school and still wasn’t able to make a single friend! \n \nShe was really close to becoming a shut-in, but one day, Nijika Ijichi, the drummer in Kessoku Band, reached out to her. And because of that, her everyday life started to change little by little... \n ",
+      "format": "TV",
+      "episodes": 12,
+      "season_year": 2022,
+      "image_url": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx130003-HTDmeL4RGeJ4.png",
+      "status": "UNKNOWN",
+      "genres": [
+        "Comedy",
+        "Music",
+        "Slice of Life"
+      ]
+    },
+    {
+      "id": 101386,
+      "romaji_title": "Hitoribocchi no ○○ Seikatsu",
+      "english_title": "Hitoribocchi no Marumaruseikatsu",
+      "average_score": 73.0,
+      "popularity": 68028,
+      "similarity": 0.4302165267885163,
+      "description": "Hitori Bocchi suffers from extreme social anxiety, she’s not good at talking to people, takes pretty extreme actions, is surprisingly adept at avoiding people, her legs cramp when she overexerts herself, gets full of herself when alone, will vomit when exposed to extreme tension and often comes up with plans. Now she is entering middle school and her only friend, Yawara Kai, is attending a different school. This leaves Bocchi alone, surrounded by new classmates with whom she must make friends before Kai will talk to her again.  ",
+      "format": "TV",
+      "episodes": 12,
+      "season_year": 2019,
+      "image_url": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx101386-ZJN6JFf9gKrV.png",
+      "status": "UNKNOWN",
+      "genres": [
+        "Comedy",
+        "Slice of Life"
+      ]
+    },
+    {
+      "id": 16273,
+      "romaji_title": "Acchi Kocchi: PLACE=PRINCESS",
+      "english_title": "Place to Place OVA",
+      "average_score": 72.0,
+      "popularity": 14525,
+      "similarity": 0.3787949374321803,
+      "description": "Unaired episode 13 of Acchi Kocchi that was included in Vol.6.",
+      "format": "OVA",
+      "episodes": 1,
+      "season_year": 2012,
+      "image_url": "https://s4.anilist.co/file/anilistcdn/media/anime/cover/small/bx16273-FhEHi6SHzllH.png",
+      "status": "UNKNOWN",
+      "genres": [
+        "Comedy",
+        "Romance",
+        "Slice of Life"
+      ]
+    }
+  ]
+}

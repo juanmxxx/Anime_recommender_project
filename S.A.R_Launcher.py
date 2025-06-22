@@ -90,7 +90,7 @@ def start_backend():
     
     # Iniciar proceso
     backend_process = subprocess.Popen(
-        [venv_python, "-m", "uvicorn", "api:app", "--reload", "--host", "127.0.0.1", "--port", "8000"],
+        [venv_python, "-m", "uvicorn", "main:app", "--reload", "--host", "127.0.0.1", "--port", "8000"],
         cwd=backend_dir,
         creationflags=subprocess.CREATE_NEW_CONSOLE
     )

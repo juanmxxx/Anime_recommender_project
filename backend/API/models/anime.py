@@ -16,5 +16,5 @@ class MetricEntry(Base):
     anime_id = Column(Integer, nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     user_agent = Column(Text, nullable=True)
-    ip_address = Column(INET, nullable=True)
+    ip_address = Column(INET, nullable=True)  # Usar INET para PostgreSQL
     load_time_ms = Column(Integer, nullable=True)

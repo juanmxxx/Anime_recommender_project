@@ -1,0 +1,818 @@
+=== ENHANCED ANIME RECOMMENDER METRICS EVALUATION ===
+
+OVERALL METRICS:
+- PRECISION: 0.6910
+- RECALL: 0.2636
+- F1_SCORE: 0.3759
+- MAP: 0.2150
+
+METRICS AT :
+
+K15:
+- PRECISION: 0.0000
+- RECALL: 0.0000
+- F1_SCORE: 0.0000
+- MAP: 0.0000
+
+INDIVIDUAL RESULTS:
+
+TEST 1:
+- Test Prompt: "Cyberpunk sci-fi with artificial intelligence"
+- Reference Prompt: "Cyberpunk sci-fi with artificial intelligence"
+- Precision: 0.5000
+- Recall: 0.1667
+- F1 Score: 0.2500
+- Average Precision: 0.0835
+
+TEST 2:
+- Test Prompt: "ANIME ABOUT VAMPIRES AND SUPERNATURAL CREATURES?"
+- Reference Prompt: "Anime about vampires and supernatural creatures"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2785
+
+TEST 3:
+- Test Prompt: "Romance anime with love triangle with good ratings"
+- Reference Prompt: "Romance anime with love triangle"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.1959
+
+TEST 4:
+- Test Prompt: "Sports anime about basketball"
+- Reference Prompt: "Sports anime about basketball"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 5:
+- Test Prompt: "action romance with mighty characters"
+- Reference Prompt: "Action romance with strong characters"
+- Precision: 0.1000
+- Recall: 0.0769
+- F1 Score: 0.0870
+- Average Precision: 0.0192
+
+TEST 6:
+- Test Prompt: "SUPERNATURAL MYSTERY ANIME"
+- Reference Prompt: "Supernatural mystery anime"
+- Precision: 0.6000
+- Recall: 0.2609
+- F1 Score: 0.3636
+- Average Precision: 0.2195
+
+TEST 7:
+- Test Prompt: "Romance anime with love triangle"
+- Reference Prompt: "Romance anime with love triangle"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2524
+
+TEST 8:
+- Test Prompt: "Romantic comedy with happy ending"
+- Reference Prompt: "Romantic comedy with happy ending"
+- Precision: 0.5000
+- Recall: 0.1667
+- F1 Score: 0.2500
+- Average Precision: 0.1131
+
+TEST 9:
+- Test Prompt: "Zombie apocalypse horror anime?"
+- Reference Prompt: "Zombie apocalypse horror anime"
+- Precision: 0.3000
+- Recall: 0.1429
+- F1 Score: 0.1935
+- Average Precision: 0.0434
+
+TEST 10:
+- Test Prompt: "I need romantic comedy with happy ending"
+- Reference Prompt: "Romantic comedy with happy ending"
+- Precision: 0.5000
+- Recall: 0.1667
+- F1 Score: 0.2500
+- Average Precision: 0.1219
+
+TEST 11:
+- Test Prompt: "Music anime about bands to binge watch"
+- Reference Prompt: "Music anime about bands"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2086
+
+TEST 12:
+- Test Prompt: "I'm looking for baseball anime with strong teamwork"
+- Reference Prompt: "Baseball anime with strong teamwork"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 13:
+- Test Prompt: "Psychological anime about mental health"
+- Reference Prompt: "Psychological anime about mental health"
+- Precision: 0.4000
+- Recall: 0.2857
+- F1 Score: 0.3333
+- Average Precision: 0.1286
+
+TEST 14:
+- Test Prompt: "Zombie apocalypse horror anime to watch tonight"
+- Reference Prompt: "Zombie apocalypse horror anime"
+- Precision: 0.3000
+- Recall: 0.1429
+- F1 Score: 0.1935
+- Average Precision: 0.0556
+
+TEST 15:
+- Test Prompt: "fantasy quest with magic and dragons"
+- Reference Prompt: "Fantasy adventure with magic and dragons"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2888
+
+TEST 16:
+- Test Prompt: "action anime with mighty female protagonists"
+- Reference Prompt: "Action anime with strong female protagonists"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2840
+
+TEST 17:
+- Test Prompt: "baseball anime with mighty teamwork"
+- Reference Prompt: "Baseball anime with strong teamwork"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2630
+
+TEST 18:
+- Test Prompt: "Cyberpunk sci-fi with artificial intelligence"
+- Reference Prompt: "Cyberpunk sci-fi with artificial intelligence"
+- Precision: 0.5000
+- Recall: 0.1667
+- F1 Score: 0.2500
+- Average Precision: 0.0835
+
+TEST 19:
+- Test Prompt: "romantic comedy with pleasant ending"
+- Reference Prompt: "Romantic comedy with happy ending"
+- Precision: 0.6000
+- Recall: 0.2000
+- F1 Score: 0.3000
+- Average Precision: 0.1652
+
+TEST 20:
+- Test Prompt: "Psychological thriller with plot twists"
+- Reference Prompt: "Psychological thriller with plot twists"
+- Precision: 0.8000
+- Recall: 0.2963
+- F1 Score: 0.4324
+- Average Precision: 0.2963
+
+TEST 21:
+- Test Prompt: "Supernatural mystery anime"
+- Reference Prompt: "Supernatural mystery anime"
+- Precision: 0.6000
+- Recall: 0.2609
+- F1 Score: 0.3636
+- Average Precision: 0.2195
+
+TEST 22:
+- Test Prompt: "Psychological anime about mental health"
+- Reference Prompt: "Psychological anime about mental health"
+- Precision: 0.4000
+- Recall: 0.2857
+- F1 Score: 0.3333
+- Average Precision: 0.1286
+
+TEST 23:
+- Test Prompt: "I want to watch sci-fi horror in space"
+- Reference Prompt: "Sci-fi horror in space"
+- Precision: 0.1000
+- Recall: 0.0909
+- F1 Score: 0.0952
+- Average Precision: 0.0182
+
+TEST 24:
+- Test Prompt: "Fantasy adventure with magic and dragons, what do you recommend?"
+- Reference Prompt: "Fantasy adventure with magic and dragons"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2388
+
+TEST 25:
+- Test Prompt: "Post-apocalyptic sci-fi anime?"
+- Reference Prompt: "Post-apocalyptic sci-fi anime"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 26:
+- Test Prompt: "Romantic comedy with happy ending, any suggestions?"
+- Reference Prompt: "Romantic comedy with happy ending"
+- Precision: 0.5000
+- Recall: 0.1667
+- F1 Score: 0.2500
+- Average Precision: 0.1106
+
+TEST 27:
+- Test Prompt: "science fiction with outer space exploration"
+- Reference Prompt: "Science fiction with space exploration"
+- Precision: 0.7000
+- Recall: 0.2333
+- F1 Score: 0.3500
+- Average Precision: 0.1749
+
+TEST 28:
+- Test Prompt: "Psychological anime with philosophical themes with good ratings"
+- Reference Prompt: "Psychological anime with philosophical themes"
+- Precision: 0.4000
+- Recall: 0.2353
+- F1 Score: 0.2963
+- Average Precision: 0.0946
+
+TEST 29:
+- Test Prompt: "I'm looking for mystery anime with detective"
+- Reference Prompt: "Mystery anime with detective"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 30:
+- Test Prompt: "love story anime with love triangle"
+- Reference Prompt: "Romance anime with love triangle"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2635
+
+TEST 31:
+- Test Prompt: "MUSIC ANIME ABOUT BANDS?"
+- Reference Prompt: "Music anime about bands"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2485
+
+TEST 32:
+- Test Prompt: "Action anime with strong female protagonists, what do you recommend?"
+- Reference Prompt: "Action anime with strong female protagonists"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2305
+
+TEST 33:
+- Test Prompt: "Please suggest psychological horror with disturbing themes"
+- Reference Prompt: "Psychological horror with disturbing themes"
+- Precision: 0.6000
+- Recall: 0.3750
+- F1 Score: 0.4615
+- Average Precision: 0.2329
+
+TEST 34:
+- Test Prompt: "I need tragic romance anime"
+- Reference Prompt: "Tragic romance anime"
+- Precision: 0.6000
+- Recall: 0.2000
+- F1 Score: 0.3000
+- Average Precision: 0.1139
+
+TEST 35:
+- Test Prompt: "Romantic comedy with happy ending?"
+- Reference Prompt: "Romantic comedy with happy ending"
+- Precision: 0.4000
+- Recall: 0.1333
+- F1 Score: 0.2000
+- Average Precision: 0.0865
+
+TEST 36:
+- Test Prompt: "zombie apocalypse horror anime?"
+- Reference Prompt: "Zombie apocalypse horror anime"
+- Precision: 0.3000
+- Recall: 0.1429
+- F1 Score: 0.1935
+- Average Precision: 0.0434
+
+TEST 37:
+- Test Prompt: "I want to watch sci-fi horror in space"
+- Reference Prompt: "Sci-fi horror in space"
+- Precision: 0.1000
+- Recall: 0.0909
+- F1 Score: 0.0952
+- Average Precision: 0.0182
+
+TEST 38:
+- Test Prompt: "Can you recommend me anime with time travel elements"
+- Reference Prompt: "Anime with time travel elements"
+- Precision: 0.4000
+- Recall: 0.1667
+- F1 Score: 0.2353
+- Average Precision: 0.1245
+
+TEST 39:
+- Test Prompt: "What are some good horror anime with supernatural elements"
+- Reference Prompt: "Horror anime with supernatural elements"
+- Precision: 0.7000
+- Recall: 0.3043
+- F1 Score: 0.4242
+- Average Precision: 0.2768
+
+TEST 40:
+- Test Prompt: "Anime about vampires and supernatural creatures"
+- Reference Prompt: "Anime about vampires and supernatural creatures"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2485
+
+TEST 41:
+- Test Prompt: "What are some good sci-fi horror in space"
+- Reference Prompt: "Sci-fi horror in space"
+- Precision: 0.6000
+- Recall: 0.5455
+- F1 Score: 0.5714
+- Average Precision: 0.3846
+
+TEST 42:
+- Test Prompt: "psychological anime with philosophical themes"
+- Reference Prompt: "Psychological anime with philosophical themes"
+- Precision: 0.5000
+- Recall: 0.2941
+- F1 Score: 0.3704
+- Average Precision: 0.1356
+
+TEST 43:
+- Test Prompt: "I need mystery anime with detective"
+- Reference Prompt: "Mystery anime with detective"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 44:
+- Test Prompt: "I'm looking for anime about vampires and supernatural creatures"
+- Reference Prompt: "Anime about vampires and supernatural creatures"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2785
+
+TEST 45:
+- Test Prompt: "I want to watch anime about vampires and supernatural creatures"
+- Reference Prompt: "Anime about vampires and supernatural creatures"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2785
+
+TEST 46:
+- Test Prompt: "SCI-FI HORROR IN SPACE?"
+- Reference Prompt: "Sci-fi horror in space"
+- Precision: 0.5000
+- Recall: 0.4545
+- F1 Score: 0.4762
+- Average Precision: 0.2815
+
+TEST 47:
+- Test Prompt: "action journey with superpowers"
+- Reference Prompt: "Action adventure with superpowers"
+- Precision: 0.7000
+- Recall: 0.2333
+- F1 Score: 0.3500
+- Average Precision: 0.2333
+
+TEST 48:
+- Test Prompt: "Competitive swimming anime"
+- Reference Prompt: "Competitive swimming anime"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2967
+
+TEST 49:
+- Test Prompt: "I'm looking for horror anime with supernatural elements"
+- Reference Prompt: "Horror anime with supernatural elements"
+- Precision: 0.7000
+- Recall: 0.3043
+- F1 Score: 0.4242
+- Average Precision: 0.2768
+
+TEST 50:
+- Test Prompt: "tragic love story anime"
+- Reference Prompt: "Tragic romance anime"
+- Precision: 0.6000
+- Recall: 0.2000
+- F1 Score: 0.3000
+- Average Precision: 0.1497
+
+TEST 51:
+- Test Prompt: "Supernatural mystery anime"
+- Reference Prompt: "Supernatural mystery anime"
+- Precision: 0.6000
+- Recall: 0.2609
+- F1 Score: 0.3636
+- Average Precision: 0.2195
+
+TEST 52:
+- Test Prompt: "Action anime with martial arts?"
+- Reference Prompt: "Action anime with martial arts"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2718
+
+TEST 53:
+- Test Prompt: "Murder mystery with plot twists"
+- Reference Prompt: "Murder mystery with plot twists"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2840
+
+TEST 54:
+- Test Prompt: "slice of life anime about school?"
+- Reference Prompt: "Slice of life anime about school"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2086
+
+TEST 55:
+- Test Prompt: "Psychological anime about mental health to watch tonight"
+- Reference Prompt: "Psychological anime about mental health"
+- Precision: 0.2000
+- Recall: 0.1429
+- F1 Score: 0.1667
+- Average Precision: 0.1429
+
+TEST 56:
+- Test Prompt: "Can you recommend me fantasy anime with elves and magical creatures"
+- Reference Prompt: "Fantasy anime with elves and magical creatures"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2356
+
+TEST 57:
+- Test Prompt: "I'm looking for supernatural mystery anime"
+- Reference Prompt: "Supernatural mystery anime"
+- Precision: 0.7000
+- Recall: 0.3043
+- F1 Score: 0.4242
+- Average Precision: 0.2605
+
+TEST 58:
+- Test Prompt: "zombie apocalypse scary anime"
+- Reference Prompt: "Zombie apocalypse horror anime"
+- Precision: 0.4000
+- Recall: 0.1905
+- F1 Score: 0.2581
+- Average Precision: 0.0644
+
+TEST 59:
+- Test Prompt: "I'm looking for baseball anime with strong teamwork"
+- Reference Prompt: "Baseball anime with strong teamwork"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 60:
+- Test Prompt: "I want to watch action anime with strong female protagonists"
+- Reference Prompt: "Action anime with strong female protagonists"
+- Precision: 0.7000
+- Recall: 0.2333
+- F1 Score: 0.3500
+- Average Precision: 0.2000
+
+TEST 61:
+- Test Prompt: "Action anime with martial arts?"
+- Reference Prompt: "Action anime with martial arts"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2718
+
+TEST 62:
+- Test Prompt: "Show me science fiction with space exploration"
+- Reference Prompt: "Science fiction with space exploration"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2967
+
+TEST 63:
+- Test Prompt: "Psychological anime with philosophical themes"
+- Reference Prompt: "Psychological anime with philosophical themes"
+- Precision: 0.5000
+- Recall: 0.2941
+- F1 Score: 0.3704
+- Average Precision: 0.1356
+
+TEST 64:
+- Test Prompt: "I'm looking for psychological thriller with plot twists"
+- Reference Prompt: "Psychological thriller with plot twists"
+- Precision: 0.9000
+- Recall: 0.3333
+- F1 Score: 0.4865
+- Average Precision: 0.2928
+
+TEST 65:
+- Test Prompt: "isekai anime where protagonist is reborn in another world"
+- Reference Prompt: "Isekai anime where protagonist is reborn in another world"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 66:
+- Test Prompt: "Psychological horror with disturbing themes for the weekend"
+- Reference Prompt: "Psychological horror with disturbing themes"
+- Precision: 0.4000
+- Recall: 0.2500
+- F1 Score: 0.3077
+- Average Precision: 0.0793
+
+TEST 67:
+- Test Prompt: "Psychological anime about mental health to watch tonight"
+- Reference Prompt: "Psychological anime about mental health"
+- Precision: 0.2000
+- Recall: 0.1429
+- F1 Score: 0.1667
+- Average Precision: 0.1429
+
+TEST 68:
+- Test Prompt: "I need baseball anime with strong teamwork"
+- Reference Prompt: "Baseball anime with strong teamwork"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 69:
+- Test Prompt: "mystery anime with investigator"
+- Reference Prompt: "Mystery anime with detective"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 70:
+- Test Prompt: "Slice of life anime about school for the weekend"
+- Reference Prompt: "Slice of life anime about school"
+- Precision: 0.7000
+- Recall: 0.2333
+- F1 Score: 0.3500
+- Average Precision: 0.1916
+
+TEST 71:
+- Test Prompt: "Action anime with martial arts, any suggestions?"
+- Reference Prompt: "Action anime with martial arts"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2718
+
+TEST 72:
+- Test Prompt: "Comedy anime about high school sports, any suggestions?"
+- Reference Prompt: "Comedy anime about high school sports"
+- Precision: 0.5000
+- Recall: 0.2174
+- F1 Score: 0.3030
+- Average Precision: 0.0806
+
+TEST 73:
+- Test Prompt: "Psychological thriller with plot twists?"
+- Reference Prompt: "Psychological thriller with plot twists"
+- Precision: 0.9000
+- Recall: 0.3333
+- F1 Score: 0.4865
+- Average Precision: 0.3094
+
+TEST 74:
+- Test Prompt: "Music anime about bands, any suggestions?"
+- Reference Prompt: "Music anime about bands"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2485
+
+TEST 75:
+- Test Prompt: "dark mythical with demons"
+- Reference Prompt: "Dark fantasy with demons"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2540
+
+TEST 76:
+- Test Prompt: "Slice of life anime about college students for the weekend"
+- Reference Prompt: "Slice of life anime about college students"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 77:
+- Test Prompt: "Fantasy anime with elves and magical creatures, what do you recommend?"
+- Reference Prompt: "Fantasy anime with elves and magical creatures"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2967
+
+TEST 78:
+- Test Prompt: "Slice of life anime about college students"
+- Reference Prompt: "Slice of life anime about college students"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 79:
+- Test Prompt: "Isekai anime where protagonist is reborn in another world"
+- Reference Prompt: "Isekai anime where protagonist is reborn in another world"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 80:
+- Test Prompt: "Tragic romance anime"
+- Reference Prompt: "Tragic romance anime"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.1959
+
+TEST 81:
+- Test Prompt: "I need psychological horror with disturbing themes"
+- Reference Prompt: "Psychological horror with disturbing themes"
+- Precision: 0.5000
+- Recall: 0.3125
+- F1 Score: 0.3846
+- Average Precision: 0.2042
+
+TEST 82:
+- Test Prompt: "Horror anime with supernatural elements for the weekend"
+- Reference Prompt: "Horror anime with supernatural elements"
+- Precision: 0.9000
+- Recall: 0.3913
+- F1 Score: 0.5455
+- Average Precision: 0.3437
+
+TEST 83:
+- Test Prompt: "slice of life anime about college"
+- Reference Prompt: "Slice of life anime about school"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2305
+
+TEST 84:
+- Test Prompt: "Action adventure with superpowers for the weekend"
+- Reference Prompt: "Action adventure with superpowers"
+- Precision: 0.6000
+- Recall: 0.2000
+- F1 Score: 0.3000
+- Average Precision: 0.1242
+
+TEST 85:
+- Test Prompt: "Psychological anime about mental health, any suggestions?"
+- Reference Prompt: "Psychological anime about mental health"
+- Precision: 0.4000
+- Recall: 0.2857
+- F1 Score: 0.3333
+- Average Precision: 0.1230
+
+TEST 86:
+- Test Prompt: "Fantasy anime with elves and magical creatures to watch tonight"
+- Reference Prompt: "Fantasy anime with elves and magical creatures"
+- Precision: 0.7000
+- Recall: 0.2333
+- F1 Score: 0.3500
+- Average Precision: 0.2028
+
+TEST 87:
+- Test Prompt: "Science fiction with space exploration please"
+- Reference Prompt: "Science fiction with space exploration"
+- Precision: 0.8000
+- Recall: 0.2667
+- F1 Score: 0.4000
+- Average Precision: 0.2194
+
+TEST 88:
+- Test Prompt: "Show me competitive swimming anime"
+- Reference Prompt: "Competitive swimming anime"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2967
+
+TEST 89:
+- Test Prompt: "Can you recommend me psychological horror with disturbing themes"
+- Reference Prompt: "Psychological horror with disturbing themes"
+- Precision: 0.5000
+- Recall: 0.3125
+- F1 Score: 0.3846
+- Average Precision: 0.2121
+
+TEST 90:
+- Test Prompt: "I want to watch mystery anime with detective"
+- Reference Prompt: "Mystery anime with detective"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 91:
+- Test Prompt: "Baseball anime with strong teamwork, any suggestions?"
+- Reference Prompt: "Baseball anime with strong teamwork"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 92:
+- Test Prompt: "Cyberpunk sci-fi with artificial intelligence to binge watch"
+- Reference Prompt: "Cyberpunk sci-fi with artificial intelligence"
+- Precision: 0.4000
+- Recall: 0.1333
+- F1 Score: 0.2000
+- Average Precision: 0.0643
+
+TEST 93:
+- Test Prompt: "What are some good dark fantasy with demons"
+- Reference Prompt: "Dark fantasy with demons"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 94:
+- Test Prompt: "Murder mystery with plot twists"
+- Reference Prompt: "Murder mystery with plot twists"
+- Precision: 0.9000
+- Recall: 0.3000
+- F1 Score: 0.4500
+- Average Precision: 0.2840
+
+TEST 95:
+- Test Prompt: "science fiction with galaxy exploration"
+- Reference Prompt: "Science fiction with space exploration"
+- Precision: 0.4000
+- Recall: 0.1333
+- F1 Score: 0.2000
+- Average Precision: 0.0758
+
+TEST 96:
+- Test Prompt: "I want to watch post-apocalyptic sci-fi anime"
+- Reference Prompt: "Post-apocalyptic sci-fi anime"
+- Precision: 0.6000
+- Recall: 0.2000
+- F1 Score: 0.3000
+- Average Precision: 0.1830
+
+TEST 97:
+- Test Prompt: "comedy anime about high academy sports"
+- Reference Prompt: "Comedy anime about high school sports"
+- Precision: 0.7000
+- Recall: 0.3043
+- F1 Score: 0.4242
+- Average Precision: 0.2174
+
+TEST 98:
+- Test Prompt: "I want to watch sci-fi horror in space"
+- Reference Prompt: "Sci-fi horror in space"
+- Precision: 0.1000
+- Recall: 0.0909
+- F1 Score: 0.0952
+- Average Precision: 0.0182
+
+TEST 99:
+- Test Prompt: "Sports anime about basketball please"
+- Reference Prompt: "Sports anime about basketball"
+- Precision: 1.0000
+- Recall: 0.3333
+- F1 Score: 0.5000
+- Average Precision: 0.3333
+
+TEST 100:
+- Test Prompt: "romantic comedy with joyful ending"
+- Reference Prompt: "Romantic comedy with happy ending"
+- Precision: 0.5000
+- Recall: 0.1667
+- F1 Score: 0.2500
+- Average Precision: 0.1242
+

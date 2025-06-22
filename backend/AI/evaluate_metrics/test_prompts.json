@@ -1,0 +1,291 @@
+{
+  "test_prompts": [
+    {
+      "prompt": "Action anime with strong female protagonists",
+      "genres": ["Action"],
+      "keywords": ["female", "strong", "protagonist"],
+      "mandatory_genres": ["Action"],
+      "category": "Acción"
+    },
+    {
+      "prompt": "Action anime with martial arts",
+      "genres": ["Action", "Martial Arts"],
+      "keywords": ["martial", "fight"],
+      "mandatory_genres": ["Action"],
+      "category": "Acción"
+    },
+    {
+      "prompt": "Action adventure with superpowers",
+      "genres": ["Action", "Adventure", "Super Power"],
+      "keywords": ["power"],
+      "mandatory_genres": ["Action"],
+      "category": "Acción"
+    },
+    {
+      "prompt": "Fantasy adventure with magic and dragons",
+      "genres": ["Fantasy", "Adventure"],
+      "keywords": ["magic", "dragon"],
+      "mandatory_genres": ["Fantasy"],
+      "category": "Fantasía"
+    },
+    {
+      "prompt": "Dark fantasy with demons",
+      "genres": ["Fantasy", "Demons", "Horror"],
+      "keywords": ["dark", "demon"],
+      "mandatory_genres": ["Fantasy"],
+      "category": "Fantasía"
+    },
+    {
+      "prompt": "Fantasy anime with elves and magical creatures",
+      "genres": ["Fantasy"],
+      "keywords": ["elf", "creature", "magic"],
+      "mandatory_genres": ["Fantasy"],
+      "category": "Fantasía"
+    },
+    {
+      "prompt": "Slice of life anime about school",
+      "genres": ["Slice of Life", "School"],
+      "keywords": ["school", "daily"],
+      "mandatory_genres": ["Slice of Life"],
+      "category": "Slice of Life"
+    },
+    {
+      "prompt": "Wholesome slice of life with cute characters",
+      "genres": ["Slice of Life"],
+      "keywords": ["cute", "wholesome"],
+      "mandatory_genres": ["Slice of Life"],
+      "category": "Slice of Life"
+    },
+    {
+      "prompt": "Slice of life anime about college students",
+      "genres": ["Slice of Life"],
+      "keywords": ["college", "university"],
+      "mandatory_genres": ["Slice of Life"],
+      "category": "Slice of Life"
+    },
+    {
+      "prompt": "Science fiction with space exploration",
+      "genres": ["Sci-Fi", "Space"],
+      "keywords": ["space", "planet"],
+      "mandatory_genres": ["Sci-Fi"],
+      "category": "Ciencia Ficción"
+    },
+    {
+      "prompt": "Cyberpunk sci-fi with artificial intelligence",
+      "genres": ["Sci-Fi"],
+      "keywords": ["cyberpunk", "AI", "future"],
+      "mandatory_genres": ["Sci-Fi"],
+      "category": "Ciencia Ficción"
+    },
+    {
+      "prompt": "Post-apocalyptic sci-fi anime",
+      "genres": ["Sci-Fi"],
+      "keywords": ["apocalypse", "post-apocalyptic"],
+      "mandatory_genres": ["Sci-Fi"],
+      "category": "Ciencia Ficción"
+    },
+    {
+      "prompt": "Romantic comedy with happy ending",
+      "genres": ["Romance", "Comedy"],
+      "keywords": ["love", "happy"],
+      "mandatory_genres": ["Romance"],
+      "category": "Romance"
+    },
+    {
+      "prompt": "Tragic romance anime",
+      "genres": ["Romance", "Drama"],
+      "keywords": ["tragic", "sad"],
+      "mandatory_genres": ["Romance"],
+      "category": "Romance"
+    },
+    {
+      "prompt": "Romance anime with love triangle",
+      "genres": ["Romance"],
+      "keywords": ["triangle", "love"],
+      "mandatory_genres": ["Romance"],
+      "category": "Romance"
+    },
+    {
+      "prompt": "Mystery anime with detective",
+      "genres": ["Mystery"],
+      "keywords": ["detective", "investigation"],
+      "mandatory_genres": ["Mystery"],
+      "category": "Misterio"
+    },
+    {
+      "prompt": "Murder mystery with plot twists",
+      "genres": ["Mystery"],
+      "keywords": ["murder", "crime"],
+      "mandatory_genres": ["Mystery"],
+      "category": "Misterio"
+    },
+    {
+      "prompt": "Supernatural mystery anime",
+      "genres": ["Mystery", "Supernatural"],
+      "keywords": ["ghost", "supernatural"],
+      "mandatory_genres": ["Mystery"],
+      "category": "Misterio"
+    },
+    {
+      "prompt": "Horror anime with supernatural elements",
+      "genres": ["Horror", "Supernatural"],
+      "keywords": ["ghost", "spirit"],
+      "mandatory_genres": ["Horror"],
+      "category": "Horror"
+    },
+    {
+      "prompt": "Psychological horror with disturbing themes",
+      "genres": ["Horror", "Psychological"],
+      "keywords": ["disturb", "mind"],
+      "mandatory_genres": ["Horror", "Psychological"],
+      "category": "Horror"
+    },
+    {
+      "prompt": "Zombie apocalypse horror anime",
+      "genres": ["Horror"],
+      "keywords": ["zombie", "apocalypse"],
+      "mandatory_genres": ["Horror"],
+      "category": "Horror"
+    },
+    {
+      "prompt": "Sports anime about basketball",
+      "genres": ["Sports"],
+      "keywords": ["basketball"],
+      "mandatory_genres": ["Sports"],
+      "category": "Deportes"
+    },
+    {
+      "prompt": "Baseball anime with strong teamwork",
+      "genres": ["Sports"],
+      "keywords": ["baseball", "team"],
+      "mandatory_genres": ["Sports"],
+      "category": "Deportes"
+    },
+    {
+      "prompt": "Competitive swimming anime",
+      "genres": ["Sports"],
+      "keywords": ["swim"],
+      "mandatory_genres": ["Sports"],
+      "category": "Deportes"
+    },
+    {
+      "prompt": "Historical anime set in Japan",
+      "genres": ["Historical"],
+      "keywords": ["japan", "samurai"],
+      "mandatory_genres": ["Historical"],
+      "category": "Histórica"
+    },
+    {
+      "prompt": "Historical war anime",
+      "genres": ["Historical", "Military"],
+      "keywords": ["war", "battle"],
+      "mandatory_genres": ["Historical"],
+      "category": "Histórica"
+    },
+    {
+      "prompt": "Medieval fantasy with historical elements",
+      "genres": ["Historical", "Fantasy"],
+      "keywords": ["medieval", "knight"],
+      "mandatory_genres": ["Historical"],
+      "category": "Histórica"
+    },
+    {
+      "prompt": "Psychological thriller with plot twists",
+      "genres": ["Psychological", "Thriller"],
+      "keywords": ["twist", "mind"],
+      "mandatory_genres": ["Psychological"],
+      "category": "Psicológica"
+    },
+    {
+      "prompt": "Psychological anime about mental health",
+      "genres": ["Psychological", "Drama"],
+      "keywords": ["mental", "health"],
+      "mandatory_genres": ["Psychological"],
+      "category": "Psicológica"
+    },
+    {
+      "prompt": "Psychological anime with philosophical themes",
+      "genres": ["Psychological"],
+      "keywords": ["philosophy", "think"],
+      "mandatory_genres": ["Psychological"],
+      "category": "Psicológica"
+    },
+    {
+      "prompt": "Mecha anime with giant robots",
+      "genres": ["Mecha"],
+      "keywords": ["robot", "mech"],
+      "mandatory_genres": ["Mecha"],
+      "category": "Especializada"
+    },
+    {
+      "prompt": "Music anime about bands",
+      "genres": ["Music"],
+      "keywords": ["band", "song"],
+      "mandatory_genres": ["Music"],
+      "category": "Especializada"
+    },
+    {
+      "prompt": "Cooking anime with food competitions",
+      "genres": ["Gourmet"],
+      "keywords": ["food", "cook"],
+      "mandatory_genres": [],
+      "category": "Especializada"
+    },
+    {
+      "prompt": "Isekai anime where protagonist is reborn in another world",
+      "genres": ["Fantasy", "Isekai"],
+      "keywords": ["isekai", "reborn", "another world"],
+      "mandatory_genres": [],
+      "category": "Especializada"
+    },
+    {
+      "prompt": "Anime with time travel elements",
+      "genres": ["Sci-Fi"],
+      "keywords": ["time travel", "past", "future"],
+      "mandatory_genres": [],
+      "category": "Especializada"
+    },
+    {
+      "prompt": "Anime about vampires and supernatural creatures",
+      "genres": ["Supernatural", "Vampire"],
+      "keywords": ["vampire", "blood"],
+      "mandatory_genres": ["Supernatural"],
+      "category": "Especializada"
+    },
+    {
+      "prompt": "Action romance with strong characters",
+      "genres": ["Action", "Romance"],
+      "keywords": ["strong"],
+      "mandatory_genres": ["Action", "Romance"],
+      "category": "Combinación"
+    },
+    {
+      "prompt": "Sci-fi horror in space",
+      "genres": ["Sci-Fi", "Horror", "Space"],
+      "keywords": ["space", "scary"],
+      "mandatory_genres": ["Sci-Fi", "Horror"],
+      "category": "Combinación"
+    },
+    {
+      "prompt": "Mystery thriller with supernatural elements",
+      "genres": ["Mystery", "Thriller", "Supernatural"],
+      "keywords": ["supernatural"],
+      "mandatory_genres": ["Mystery", "Thriller"],
+      "category": "Combinación"
+    },
+    {
+      "prompt": "Comedy anime about high school sports",
+      "genres": ["Comedy", "Sports", "School"],
+      "keywords": ["high school"],
+      "mandatory_genres": ["Comedy", "Sports"],
+      "category": "Combinación"
+    },
+    {
+      "prompt": "Dark fantasy with psychological elements",
+      "genres": ["Fantasy", "Psychological"],
+      "keywords": ["dark"],
+      "mandatory_genres": ["Fantasy", "Psychological"],
+      "category": "Combinación"
+    }
+  ]
+}
