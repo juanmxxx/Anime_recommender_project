@@ -149,7 +149,7 @@ class AnimeRecommendationService:
             print(stack_trace)
             raise Exception(f"Error in recommendation system: {error_msg}")
             
-class MetricsService:
+class MetricsService:    
     def __init__(self, db):
         self.db = db
         
@@ -183,17 +183,39 @@ class MetricsService:
             print(f"  - Anime ID: {anime_id}")
             print(f"  - Tiempo de carga: {load_time_ms}ms")
             
-            # Create database entry from schema
-            db_metric = MetricEntry(
-                session_id=metric.session_id,
-                event_type=metric.event_type,
-                prompt_text=metric.prompt_text,
-                anime_clicked=metric.anime_clicked,
-                anime_id=anime_id,
-                load_time_ms=load_time_ms,
-                user_agent=user_agent,
-                ip_address=ip_address
-            )
+            # Obtener el último ID para evitar errores de clave duplicada
+            try:
+                # Intentar obtener el máximo ID actual
+                result = self.db.query(func.max(MetricEntry.id)).first()
+                last_id = result[0] if result and result[0] is not None else 0
+                next_id = last_id + 1
+                print(f"  - Último ID detectado: {last_id}, usando nuevo ID: {next_id}")
+                
+                # Create database entry from schema con ID manual
+                db_metric = MetricEntry(
+                    id=next_id,
+                    session_id=metric.session_id,
+                    event_type=metric.event_type,
+                    prompt_text=metric.prompt_text,
+                    anime_clicked=metric.anime_clicked,
+                    anime_id=anime_id,
+                    load_time_ms=load_time_ms,
+                    user_agent=user_agent,
+                    ip_address=ip_address
+                )
+            except Exception as e:
+                print(f"  - No se pudo obtener el último ID: {e}, usando autoincremento")
+                # Fallback a autoincremento si hay algún problema
+                db_metric = MetricEntry(
+                    session_id=metric.session_id,
+                    event_type=metric.event_type,
+                    prompt_text=metric.prompt_text,
+                    anime_clicked=metric.anime_clicked,
+                    anime_id=anime_id,
+                    load_time_ms=load_time_ms,
+                    user_agent=user_agent,
+                    ip_address=ip_address
+                )
             
             # Add to database
             self.db.add(db_metric)

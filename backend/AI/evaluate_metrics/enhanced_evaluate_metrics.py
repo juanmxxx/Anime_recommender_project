@@ -522,7 +522,7 @@ class AnimeRecommenderMetricsEvaluator:
             
             plt.tight_layout()
             plt.savefig(os.path.join(output_dir, "metrics.png"), dpi=300)
-        
+
         # 5. Save detailed results as text
         with open(os.path.join(output_dir, "metrics_evaluation.txt"), "w", encoding="utf-8") as f:
             f.write("=== ENHANCED ANIME RECOMMENDER METRICS EVALUATION ===\n\n")

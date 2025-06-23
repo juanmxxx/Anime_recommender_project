@@ -359,7 +359,7 @@ class AnimeEmbeddingModelTrainer:
                             result = cur.fetchone()
                             if result and result[0]:
                                 try:
-                                    # Parse JSON and ensure we get a non-empty float array
+
                                     emb_data = json.loads(result[0])
                                     if isinstance(emb_data, list) and len(emb_data) > 0:
                                         np_emb = np.array(emb_data, dtype=np.float64)

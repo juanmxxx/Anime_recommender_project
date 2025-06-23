@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: anime_postgres
+    environment:
+      POSTGRES_USER: anime_db
+      POSTGRES_PASSWORD: anime_db
+      POSTGRES_DB: animeDB
+    ports:
+      - "5432:5432"
+    volumes:      
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      - ./dumps:/dumps
+      - ../../data/backup:/backup
+    restart: unless-stopped
+  
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./php-custom.ini:/usr/local/etc/php/conf.d/custom.ini
+
+volumes:
+  postgres_data:
+    driver: local

@@ -7,11 +7,12 @@
 3. [Manual de Usuario](#manual-de-usuario)
    1. [Requisitos del sistema](#31-requisitos-del-sistema)
    2. [Instalación y puesta en marcha](#32-instalación-y-puesta-en-marcha)
-   3. [Uso de la interfaz web](#33-uso-de-la-interfaz-web)
-   4. [Realización de búsquedas y filtros](#34-realización-de-búsquedas-y-filtros)
-   5. [Interpretación de resultados](#35-interpretación-de-resultados)
-   6. [Funcionalidades adicionales](#36-funcionalidades-adicionales)
-   7. [Resolución de problemas comunes](#37-resolución-de-problemas-comunes)
+   3. [Guía para desarrolladores](#33-guía-para-desarrolladores)
+   4. [Uso de la interfaz web](#34-uso-de-la-interfaz-web)
+   5. [Realización de búsquedas y filtros](#35-realización-de-búsquedas-y-filtros)
+   6. [Interpretación de resultados](#36-interpretación-de-resultados)
+   7. [Funcionalidades adicionales](#37-funcionalidades-adicionales)
+   8. [Resolución de problemas comunes](#38-resolución-de-problemas-comunes)
 
 ## Introducción
 
@@ -56,8 +57,8 @@ Para ejecutar S.A.R. desde el código fuente, necesitarás:
 
 2. **Configurar el entorno virtual de Python**:
    ```bash
-   python -m venv .venv311
-   .venv311\Scripts\activate  # En Windows
+   py -3.11 -m venv .venv    
+   .venv\Scripts\activate  # En Windows
    # source .venv311/bin/activate  # En macOS/Linux
    pip install -r requirements.txt
    ```
@@ -86,40 +87,53 @@ Para ejecutar S.A.R. desde el código fuente, necesitarás:
    python S.A.R_Launcher.py
    ```
 
-   O iniciar cada componente por separado:
 
-   * Backend:
-     ```bash
-     cd backend/API
-     uvicorn api:app --reload --host 127.0.0.1 --port 8000
-     ```
-   
-   * Frontend:
-     ```bash
-     cd frontend
-     npm run dev
-     ```
+
+Si recibes errores con la base de datos de embeddings, puedes regenerar los embeddings ejecutando:
+
+<h2>Ojo: el funcionamiento no se vera afectado, solo en caso de querer entrenar un nuevo modelo, que se emanara de los embeddings en la base de datos</h2>
+
+Continuamos con la generacion de embeddings para la base de datos
+
+```bash
+cd backend/AI/generate-save-embeddings
+python generate_improved_embeddings.py
+```
+
+Este script verificará la instalación de pgvector y te ofrecerá opciones para instalarlo o continuar sin él.
+
+**Opción: Instalar pgvector manualmente en el contenedor**
+
+Si prefieres instalar pgvector manualmente en el contenedor:
+
+```bash
+# Conectarse al contenedor
+docker exec -it anime_postgres_embeddings bash
+
+# Instalar dependencias necesarias
+apt-get update && apt-get install -y postgresql-server-dev-all gcc make git
+
+# Clonar repositorio pgvector
+git clone https://github.com/pgvector/pgvector.git /tmp/pgvector
+
+# Compilar e instalar
+cd /tmp/pgvector && make && make install
+
+# Crear extensión en la base de datos
+psql -U anime_db -d animeDBEmbeddings -c 'CREATE EXTENSION vector;'
+```
+
+##### Opción 3: Usar almacenamiento alternativo sin pgvector
+
+Si prefieres no instalar pgvector, el sistema puede funcionar con almacenamiento alternativo basado en JSON. Sin embargo, algunas funcionalidades de búsqueda semántica podrían ser más lentas.
+
+
 
 6. **Acceder a la interfaz web**:
    - Abre tu navegador y visita `http://localhost:5173`
 
-#### B) Instalación usando Docker (para producción)
 
-1. **Tener Docker y Docker Compose instalados**
 
-2. **Descargar o clonar el repositorio**:
-   ```bash
-   git clone <url-repositorio>
-   cd proyectoIA
-   ```
-
-3. **Construir e iniciar los contenedores**:
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Acceder a la interfaz web**:
-   - Abre tu navegador y visita `http://localhost:5173`
 
 ### 1.3. Uso de la interfaz web
 
@@ -127,7 +141,6 @@ La interfaz de S.A.R. ha sido diseñada para ser intuitiva y fácil de usar:
 
 #### Página principal
 
-![Interfaz principal](../docs/images/main_interface.png)
 
 1. **Barra de navegación**: Contiene el título del proyecto "Smart Anime Recommender".
 2. **Área de búsqueda**: Un campo de texto donde puedes ingresar tus palabras clave o descripciones.
@@ -175,7 +188,7 @@ Después de realizar una búsqueda, puedes:
 
 Después de realizar una búsqueda, S.A.R. mostrará una lista de animes recomendados:
 
-![Resultados de búsqueda](../docs/images/search_results.png)
+Resultados de busqueda
 
 Cada tarjeta de anime contiene:
 
@@ -195,7 +208,7 @@ Cada tarjeta de anime contiene:
 
 Al hacer clic en cualquier tarjeta de anime, se abrirá una ventana modal con:
 
-![Detalle de anime](../docs/images/anime_detail.png)
+![Detalle de anime](docs/images/anime_detail.png)
 
 1. **Confirmación de visualización**: Pregunta si deseas ver este anime
 2. **Botón "Sí"**: Te redirigirá a AnimeFlv para buscar este título
@@ -215,19 +228,6 @@ S.A.R. incluye un modo de depuración para desarrolladores o usuarios avanzados:
    - Ver datos: Muestra la estructura completa del objeto de anime en la consola del navegador
    - Botón Debug: Aparece en las tarjetas de anime para inspeccionar sus datos
 
-#### Panel de métricas
-
-El panel de métricas proporciona estadísticas sobre el uso del sistema:
-
-1. **Activar panel de métricas**:
-   - Activa la casilla "Show Metrics" en la esquina inferior derecha
-
-2. **Información disponible**:
-   - Búsquedas realizadas por día
-   - Clics en animes por día
-   - Tasa de conversión (porcentaje de búsquedas que resultaron en clics)
-   - Tiempos de carga promedio
-   - Botón para actualizar métricas
 
 #### Persistencia de datos
 
@@ -236,7 +236,58 @@ S.A.R. conserva tu última búsqueda entre sesiones:
 1. **Almacenamiento local**: La última búsqueda y resultados se guardan en tu navegador
 2. **Reanudación**: Al volver a cargar la página, se recuperará tu última búsqueda
 
-### 1.7. Resolución de problemas comunes
+### 1.8. Resolución de problemas comunes
+
+#### Problemas con el desarrollo
+
+##### Problema: Error de pgvector al importar el archivo SQL de embeddings
+
+**Síntomas**:
+- Error al restaurar la base de datos de embeddings
+- Mensaje de error: "extension 'vector' is not available"
+- Error de Adminer: "Uncaught ValueError: PDO::query(): Argument #1 ($query) must not be empty"
+
+**Solución**:
+1. Instala pgvector manualmente en el contenedor:
+   ```bash
+   docker exec -it anime_postgres_embeddings bash
+   apt-get update && apt-get install -y postgresql-server-dev-all gcc make git
+   git clone https://github.com/pgvector/pgvector.git /tmp/pgvector
+   cd /tmp/pgvector && make && make install
+   psql -U anime_db -d animeDBEmbeddings -c 'CREATE EXTENSION vector;'
+   ```
+2. Regenera los embeddings ejecutando:
+   ```bash
+   python backend/AI/generate-save-embeddings/generate_improved_embeddings.py
+   ```
+
+##### Problema: Error al instalar dependencias del frontend
+
+**Síntomas**:
+- Mensajes de error en la consola de npm
+- El frontend no inicia correctamente
+
+**Solución**:
+1. Verifica que tienes Node.js v14+ y npm v6+ instalados
+2. Intenta borrar la carpeta `node_modules` y volver a instalar:
+   ```bash
+   cd frontend
+   rm -rf node_modules
+   npm install
+   ```
+3. Si persisten los errores, verifica la compatibilidad de versiones en `package.json`
+
+##### Problema: Los contenedores Docker no inician
+
+**Síntomas**:
+- Error al iniciar los contenedores con el launcher
+- Mensaje "Docker no está en ejecución"
+
+**Solución**:
+1. Asegúrate de que Docker Desktop está iniciado
+2. Verifica que no hay otros servicios usando los mismos puertos (5432, 5433, 8000, 5173)
+3. Intenta reiniciar Docker
+4. Ejecuta `docker system prune` para limpiar recursos no utilizados
 
 #### Problema: El sistema no muestra resultados
 
